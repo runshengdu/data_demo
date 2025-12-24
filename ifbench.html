@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IFBench - qq3dworld.com</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header>
+    <h1>IFBench</h1>
+    <nav>
+      <a href="./index.html">Benchmarks</a>
+      <a href="./agentic.html">Agentic Index</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card">
+      <div class="intro">
+        <h2>About IFBench</h2>
+        <p>Mock description: measures instruction-following fidelity, adherence to constraints, and response robustness.</p>
+      </div>
+      <div class="bars" id="bars"></div>
+    </section>
+  </main>
+  <footer>
+    <span>qq3dworld.com • IFBench (sample data)</span>
+  </footer>
+
+  <script src="./data.js"></script>
+  <script>
+    const key = "IFBench";
+    const dataset = models.map(m => ({
+      name: m.name,
+      provider: m.provider,
+      score: normalizeScore(m.scores[key])
+    })).sort((a, b) => b.score - a.score);
+    const container = document.getElementById("bars");
+    const maxScore = Math.max(...dataset.map(m => m.score));
+
+    dataset.forEach((item, idx) => {
+      const row = document.createElement("div");
+      row.className = "bar-row";
+      const width = maxScore > 0 ? ((item.score / maxScore) * 100).toFixed(1) : 0;
+      row.innerHTML = `
+        <div class="bar-head">
+          <span><span class="rank">${idx + 1}</span><span class="badge">${item.name}</span> — ${item.provider}</span>
+          <span class="score">${formatPercent(item.score)}</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${width}%;"></div>
+        </div>
+      `;
+      container.appendChild(row);
+    });
+  </script>
+</body>
+</html>

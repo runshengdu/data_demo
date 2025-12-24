@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agentic Index - qq3dworld.com</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header>
+    <h1>Agentic Index</h1>
+    <nav>
+      <a href="./index.html">Benchmarks</a>
+      <a href="./agentic.html">Agentic Index</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card">
+      <div class="intro">
+        <h2>Agentic Index</h2>
+        <p>Unweighted mean across MRCR, Tau2Bench, VitaBench, MultiChallenge, IFBench. (Mock data)</p>
+      </div>
+      <div class="bars" id="agentic-bars"></div>
+    </section>
+  </main>
+  <footer>
+    <span>qq3dworld.com • Agentic Index (sample data)</span>
+  </footer>
+
+  <script src="./data.js"></script>
+  <script>
+    const container = document.getElementById("agentic-bars");
+    const averages = models.map(m => ({
+      ...m,
+      avg: benchmarks.reduce((sum, b) => sum + normalizeScore(m.scores[b]), 0) / benchmarks.length
+    })).sort((a, b) => b.avg - a.avg);
+    const maxAvg = Math.max(...averages.map(a => a.avg));
+
+    averages.forEach((item, idx) => {
+      const row = document.createElement("div");
+      row.className = "bar-row";
+      const width = maxAvg > 0 ? ((item.avg / maxAvg) * 100).toFixed(1) : 0;
+      row.innerHTML = `
+        <div class="bar-head">
+          <span><span class="rank">${idx + 1}</span><span class="badge">${item.name}</span> — ${item.provider}</span>
+          <span class="score">${formatPercent(item.avg)}</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${width}%;"></div>
+        </div>
+      `;
+      container.appendChild(row);
+    });
+  </script>
+</body>
+</html>

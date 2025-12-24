@@ -3,37 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hello World - qq3dworld.com</title>
-  <style>
-    :root {
-      color-scheme: light;
-      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-      background: #ffffff;
-      color: #111827;
-    }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      text-align: center;
-    }
-    h1 {
-      font-size: clamp(2.5rem, 5vw, 3.5rem);
-      margin: 0 0 0.5rem;
-      letter-spacing: -0.02em;
-    }
-    p {
-      margin: 0;
-      font-size: 1.1rem;
-      color: #4b5563;
-    }
-  </style>
+  <title>LLM Benchmarks - qq3dworld.com</title>
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
+  <header>
+    <h1>LLM Benchmarks Dashboard</h1>
+    <nav>
+      <a href="./index.html">Benchmarks</a>
+      <a href="./agentic.html">Agentic Index</a>
+    </nav>
+  </header>
   <main>
-    <h1>Hello, World</h1>
-    <p>Welcome to qq3dworld.com</p>
+    <section class="card">
+      <div class="intro">
+        <h2>Benchmarks</h2>
+        <p>Choose a benchmark to view description and bar chart results per model.</p>
+      </div>
+      <div class="grid">
+        <div class="tile">
+          <strong>MRCR</strong>
+          <span>Reasoning & comprehension benchmark.</span>
+          <a href="./mrcr.html">View MRCR →</a>
+        </div>
+        <div class="tile">
+          <strong>Tau2Bench</strong>
+          <span>Multi-turn instruction following.</span>
+          <a href="./tau2bench.html">View Tau2Bench →</a>
+        </div>
+        <div class="tile">
+          <strong>VitaBench</strong>
+          <span>Vision-text alignment & grounding.</span>
+          <a href="./vitabench.html">View VitaBench →</a>
+        </div>
+        <div class="tile">
+          <strong>MultiChallenge</strong>
+          <span>Compositional, multi-skill tasks.</span>
+          <a href="./multichallenge.html">View MultiChallenge →</a>
+        </div>
+        <div class="tile">
+          <strong>IFBench</strong>
+          <span>Instruction following and fidelity.</span>
+          <a href="./ifbench.html">View IFBench →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="intro">
+        <h2>Agentic Index</h2>
+        <p>Average of MRCR, Tau2Bench, VitaBench, MultiChallenge, IFBench.</p>
+      </div>
+      <div class="tile tile-compact">
+        <strong>Agentic Index</strong>
+        <span>Per-model mean across all benchmarks.</span>
+        <a href="./agentic.html">View Agentic Index →</a>
+      </div>
+    </section>
   </main>
+  <footer>
+    <span>qq3dworld.com • Benchmarks navigation</span>
+  </footer>
 </body>
 </html>
