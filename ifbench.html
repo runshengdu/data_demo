@@ -8,7 +8,10 @@
 </head>
 <body>
   <header>
-    <h1>IFBench</h1>
+    <div class="header-left">
+      <a class="home-link" href="./index.html">首页</a>
+      <h1>IFBench</h1>
+    </div>
   </header>
   <main>
     <div class="intro">
@@ -27,33 +30,8 @@
 
   <script src="./data.js"></script>
   <script>
-    const key = "IFBench";
-    const dataset = models.map(m => ({
-      name: m.name,
-      provider: m.provider,
-      score: normalizeScore(m.scores[key])
-    })).sort((a, b) => b.score - a.score);
-    const container = document.getElementById("bars");
-    const maxScore = Math.max(...dataset.map(m => m.score));
-
-    dataset.forEach((item, idx) => {
-      const row = document.createElement("div");
-      row.className = "bar-row";
-      const width = maxScore > 0 ? ((item.score / maxScore) * 100).toFixed(1) : 0;
-      row.innerHTML = `
-        <div class="bar-head">
-          <div class="model-info">
-            <span class="rank">${idx + 1}</span>
-            <span class="badge">${item.name}</span>
-            <span class="provider">${item.provider}</span>
-          </div>
-          <span class="score">${formatPercent(item.score)}</span>
-        </div>
-        <div class="bar-track">
-          <div class="bar-fill" style="width:${width}%;"></div>
-        </div>
-      `;
-      container.appendChild(row);
+    document.addEventListener("DOMContentLoaded", () => {
+      renderBenchmarkBars("bars", "IFBench");
     });
   </script>
 </body>
