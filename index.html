@@ -8,61 +8,88 @@
 </head>
 <body>
   <header>
-    <h1>LLM Benchmarks Dashboard</h1>
-    <nav>
-      <a href="./index.html">Benchmarks</a>
-      <a href="./agentic.html">Agentic Index</a>
-    </nav>
+    <h1>LLM测试榜单</h1>
   </header>
   <main>
-    <section class="card">
-      <div class="intro">
-        <h2>Benchmarks</h2>
-        <p>Choose a benchmark to view description and bar chart results per model.</p>
+    <div class="tabs-container">
+      <button class="tab-btn active" onclick="showTab('agentic')">智能体指数</button>
+      <button class="tab-btn" onclick="showTab('finance')">金融指数（开发中）</button>
+      <button class="tab-btn" onclick="showTab('ecommerce')">电商指数（开发中）</button>
+    </div>
+
+    <!-- Agentic Index Tab -->
+    <div id="agentic" class="tab-content active">
+      <div class="leaderboard-card">
+        <h3 class="section-title">智能体指数表现排行榜</h3>
+        <div class="bars" id="agentic-bars"></div>
       </div>
+
+      <h3 class="section-title">核心评估指标</h3>
       <div class="grid">
         <div class="tile">
           <strong>MRCR</strong>
-          <span>Reasoning & comprehension benchmark.</span>
-          <a href="./mrcr.html">View MRCR →</a>
+          <span>测试LLM的长文本定位和推理能力</span>
+          <a href="./mrcr.html">查看详情 →</a>
         </div>
         <div class="tile">
           <strong>Tau2Bench</strong>
-          <span>Multi-turn instruction following.</span>
-          <a href="./tau2bench.html">View Tau2Bench →</a>
+          <span>聚焦于航空、零售、电信场景，评估LLM的工具调用能力</span>
+          <a href="./tau2bench.html">查看详情 →</a>
         </div>
         <div class="tile">
           <strong>VitaBench</strong>
-          <span>Vision-text alignment & grounding.</span>
-          <a href="./vitabench.html">View VitaBench →</a>
+          <span>聚焦于外卖、餐饮、旅游真实生活场景，评估LLM的工具调用能力</span>
+          <a href="./vitabench.html">查看详情 →</a>
         </div>
         <div class="tile">
           <strong>MultiChallenge</strong>
-          <span>Compositional, multi-skill tasks.</span>
-          <a href="./multichallenge.html">View MultiChallenge →</a>
+          <span>评估LLM在多轮对话中的指令跟随能力。</span>
+          <a href="./multichallenge.html">查看详情 →</a>
         </div>
         <div class="tile">
           <strong>IFBench</strong>
-          <span>Instruction following and fidelity.</span>
-          <a href="./ifbench.html">View IFBench →</a>
+          <span>评估LLM在处理从未见过的格式、字数控制、关键词排除等约束时的指令跟随能力</span>
+          <a href="./ifbench.html">查看详情 →</a>
         </div>
       </div>
-    </section>
+    </div>
 
-    <section class="card">
-      <div class="intro">
-        <h2>Agentic Index</h2>
-        <p>Average of MRCR, Tau2Bench, VitaBench, MultiChallenge, IFBench.</p>
+    <!-- Finance Index Tab -->
+    <div id="finance" class="tab-content">
+      <div class="coming-soon-container">
+        <h3>金融指数</h3>
+        <p>面向金融领域的专业评估指标正在开发中。</p>
       </div>
-      <div class="tile tile-compact">
-        <strong>Agentic Index</strong>
-        <span>Per-model mean across all benchmarks.</span>
-        <a href="./agentic.html">View Agentic Index →</a>
+    </div>
+
+    <!-- E-commerce Index Tab -->
+    <div id="ecommerce" class="tab-content">
+      <div class="coming-soon-container">
+        <h3>电商指数</h3>
+        <p>面向电商场景的智能体评估指标正在开发中。</p>
       </div>
-    </section>
+    </div>
   </main>
   <footer>
     <span>qq3dworld.com • Benchmarks navigation</span>
   </footer>
+
+  <script src="./data.js"></script>
+  <script>
+    function showTab(tabId) {
+      // Update buttons
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('onclick').includes(tabId));
+      });
+      // Update content
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.toggle('active', content.id === tabId);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderAgenticBars("agentic-bars");
+    });
+  </script>
 </body>
 </html>

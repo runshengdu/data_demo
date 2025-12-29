@@ -9,22 +9,20 @@
 <body>
   <header>
     <h1>IFBench</h1>
-    <nav>
-      <a href="./index.html">Benchmarks</a>
-      <a href="./agentic.html">Agentic Index</a>
-    </nav>
   </header>
   <main>
-    <section class="card">
-      <div class="intro">
-        <h2>About IFBench</h2>
-        <p>Mock description: measures instruction-following fidelity, adherence to constraints, and response robustness.</p>
-      </div>
+    <div class="intro">
+      <h2>IFBench Benchmark</h2>
+      <p>这是针对 IFEval 容易“刷榜”而推出的更难的版本。它包含 58 个全新的、多样化的可验证约束。测试模型在处理从未见过的格式、字数控制、关键词排除等约束时的能力。不同于主观评分，IFbench侧重于可以用 Python 脚本自动检查的“硬指标”，反映了模型作为生产力工具时的可靠性。</p>
+    </div>
+
+    <div class="leaderboard-card">
+      <h3 class="section-title">Benchmark Results</h3>
       <div class="bars" id="bars"></div>
-    </section>
+    </div>
   </main>
   <footer>
-    <span>qq3dworld.com • IFBench (sample data)</span>
+    <span>qq3dworld.com • IFBench Analysis</span>
   </footer>
 
   <script src="./data.js"></script>
@@ -44,7 +42,11 @@
       const width = maxScore > 0 ? ((item.score / maxScore) * 100).toFixed(1) : 0;
       row.innerHTML = `
         <div class="bar-head">
-          <span><span class="rank">${idx + 1}</span><span class="badge">${item.name}</span> — ${item.provider}</span>
+          <div class="model-info">
+            <span class="rank">${idx + 1}</span>
+            <span class="badge">${item.name}</span>
+            <span class="provider">${item.provider}</span>
+          </div>
           <span class="score">${formatPercent(item.score)}</span>
         </div>
         <div class="bar-track">

@@ -9,49 +9,26 @@
 <body>
   <header>
     <h1>VitaBench</h1>
-    <nav>
-      <a href="./index.html">Benchmarks</a>
-      <a href="./agentic.html">Agentic Index</a>
-    </nav>
   </header>
   <main>
-    <section class="card">
-      <div class="intro">
-        <h2>About VitaBench</h2>
-        <p>Mock description: evaluates vision-text alignment, grounding, and multimodal reasoning fidelity.</p>
-      </div>
+    <div class="intro">
+      <h2>VitaBench Benchmark</h2>
+      <p>该测试集聚焦于外卖、餐饮、旅游真实生活场景，包含 66 个相互关联的工具。工具之间存在复杂的依赖关系，例如用户要求“定一个离我下午开会地点近的餐厅并预约打车”，这要求模型具备空间、时间推理以及多领域意图追踪能力。</p>
+    </div>
+
+    <div class="leaderboard-card">
+      <h3 class="section-title">Benchmark Results</h3>
       <div class="bars" id="bars"></div>
-    </section>
+    </div>
   </main>
   <footer>
-    <span>qq3dworld.com • VitaBench (sample data)</span>
+    <span>qq3dworld.com • VitaBench Analysis</span>
   </footer>
 
   <script src="./data.js"></script>
   <script>
-    const key = "VitaBench";
-    const dataset = models.map(m => ({
-      name: m.name,
-      provider: m.provider,
-      score: normalizeScore(m.scores[key])
-    })).sort((a, b) => b.score - a.score);
-    const container = document.getElementById("bars");
-    const maxScore = Math.max(...dataset.map(m => m.score));
-
-    dataset.forEach((item, idx) => {
-      const row = document.createElement("div");
-      row.className = "bar-row";
-      const width = maxScore > 0 ? ((item.score / maxScore) * 100).toFixed(1) : 0;
-      row.innerHTML = `
-        <div class="bar-head">
-          <span><span class="rank">${idx + 1}</span><span class="badge">${item.name}</span> — ${item.provider}</span>
-          <span class="score">${formatPercent(item.score)}</span>
-        </div>
-        <div class="bar-track">
-          <div class="bar-fill" style="width:${width}%;"></div>
-        </div>
-      `;
-      container.appendChild(row);
+    document.addEventListener("DOMContentLoaded", () => {
+      renderBenchmarkBars("bars", "VitaBench");
     });
   </script>
 </body>

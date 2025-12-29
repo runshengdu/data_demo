@@ -9,49 +9,26 @@
 <body>
   <header>
     <h1>MultiChallenge</h1>
-    <nav>
-      <a href="./index.html">Benchmarks</a>
-      <a href="./agentic.html">Agentic Index</a>
-    </nav>
   </header>
   <main>
-    <section class="card">
-      <div class="intro">
-        <h2>About MultiChallenge</h2>
-        <p>Mock description: stresses compositional reasoning, tool-use readiness, and multi-skill task orchestration.</p>
-      </div>
+    <div class="intro">
+      <h2>MultiChallenge Benchmark</h2>
+      <p>由 Scale AI 开发，旨在测试模型在长对话中整合隐晦用户信息的能力。能否根据用户连续的修改意见，准确更新之前的输出。</p>
+    </div>
+
+    <div class="leaderboard-card">
+      <h3 class="section-title">Benchmark Results</h3>
       <div class="bars" id="bars"></div>
-    </section>
+    </div>
   </main>
   <footer>
-    <span>qq3dworld.com • MultiChallenge (sample data)</span>
+    <span>qq3dworld.com • MultiChallenge Analysis</span>
   </footer>
 
   <script src="./data.js"></script>
   <script>
-    const key = "MultiChallenge";
-    const dataset = models.map(m => ({
-      name: m.name,
-      provider: m.provider,
-      score: normalizeScore(m.scores[key])
-    })).sort((a, b) => b.score - a.score);
-    const container = document.getElementById("bars");
-    const maxScore = Math.max(...dataset.map(m => m.score));
-
-    dataset.forEach((item, idx) => {
-      const row = document.createElement("div");
-      row.className = "bar-row";
-      const width = maxScore > 0 ? ((item.score / maxScore) * 100).toFixed(1) : 0;
-      row.innerHTML = `
-        <div class="bar-head">
-          <span><span class="rank">${idx + 1}</span><span class="badge">${item.name}</span> — ${item.provider}</span>
-          <span class="score">${formatPercent(item.score)}</span>
-        </div>
-        <div class="bar-track">
-          <div class="bar-fill" style="width:${width}%;"></div>
-        </div>
-      `;
-      container.appendChild(row);
+    document.addEventListener("DOMContentLoaded", () => {
+      renderBenchmarkBars("bars", "MultiChallenge");
     });
   </script>
 </body>

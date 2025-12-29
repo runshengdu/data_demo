@@ -9,49 +9,26 @@
 <body>
   <header>
     <h1>Tau2Bench</h1>
-    <nav>
-      <a href="./index.html">Benchmarks</a>
-      <a href="./agentic.html">Agentic Index</a>
-    </nav>
   </header>
   <main>
-    <section class="card">
-      <div class="intro">
-        <h2>About Tau2Bench</h2>
-        <p>Mock description: evaluates multi-turn, instruction-following robustness and conversation coherence.</p>
-      </div>
+    <div class="intro">
+      <h2>Tau2Bench Benchmark</h2>
+      <p>这是 Sierra 推出的 Tau-Bench 的进阶版。它模拟了真实世界的企业级场景（如电信、航空、零售）。LLM需要同时操作多个 API（如查询数据库、修改订单），并在用户意图模糊或发生变化时进行沟通和纠错，测试模型在复杂策略和逻辑链条下的工具调用能力。</p>
+    </div>
+
+    <div class="leaderboard-card">
+      <h3 class="section-title">Benchmark Results</h3>
       <div class="bars" id="bars"></div>
-    </section>
+    </div>
   </main>
   <footer>
-    <span>qq3dworld.com • Tau2Bench (sample data)</span>
+    <span>qq3dworld.com • Tau2Bench Analysis</span>
   </footer>
 
   <script src="./data.js"></script>
   <script>
-    const key = "Tau2Bench";
-    const dataset = models.map(m => ({
-      name: m.name,
-      provider: m.provider,
-      score: normalizeScore(m.scores[key])
-    })).sort((a, b) => b.score - a.score);
-    const container = document.getElementById("bars");
-    const maxScore = Math.max(...dataset.map(m => m.score));
-
-    dataset.forEach((item, idx) => {
-      const row = document.createElement("div");
-      row.className = "bar-row";
-      const width = maxScore > 0 ? ((item.score / maxScore) * 100).toFixed(1) : 0;
-      row.innerHTML = `
-        <div class="bar-head">
-          <span><span class="rank">${idx + 1}</span><span class="badge">${item.name}</span> — ${item.provider}</span>
-          <span class="score">${formatPercent(item.score)}</span>
-        </div>
-        <div class="bar-track">
-          <div class="bar-fill" style="width:${width}%;"></div>
-        </div>
-      `;
-      container.appendChild(row);
+    document.addEventListener("DOMContentLoaded", () => {
+      renderBenchmarkBars("bars", "Tau2Bench");
     });
   </script>
 </body>
