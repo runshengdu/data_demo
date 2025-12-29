@@ -87,7 +87,7 @@ const models = [
   { name: "Gemini-3-flash-preview", provider: "Google", scores: { MRCR: 98.78, Tau2Bench: 64, VitaBench: 35, MultiChallenge: 63.41, IFBench: 69.21 } },
   { name: "Gemini-3-pro-preview", provider: "Google", scores: { MRCR: 98.40, Tau2Bench: 58, VitaBench: 25, MultiChallenge: 68.15, IFBench: 59.26 } },
   { name: "GLM-4.6", provider: "智谱", scores: { MRCR: 74.20, Tau2Bench: 52, VitaBench: 19, MultiChallenge: 46.09, IFBench: 48.80 } },
-  { name: "GLM-4.7", provider: "智谱", scores: { MRCR: 72.33, Tau2Bench: 60, VitaBench: 19, MultiChallenge: 59.63, IFBench: 0 } },
+  { name: "GLM-4.7", provider: "智谱", scores: { MRCR: 72.33, Tau2Bench: 60, VitaBench: 19, MultiChallenge: 59.63, IFBench: 63.81 } },
   { name: "Minimax-m2", provider: "Minimax", scores: { MRCR: 51.58, Tau2Bench: 58, VitaBench: 2, MultiChallenge: 57.38, IFBench: 70.92 } },
   { name: "Minimax-m2.1", provider: "Minimax", scores: { MRCR: 60.07, Tau2Bench: 58, VitaBench: 5, MultiChallenge: 49.64, IFBench: 51.84 } },
   { name: "Kimi-k2", provider: "Kimi", scores: { MRCR: 66.43, Tau2Bench: 54, VitaBench: 10, MultiChallenge: 58.87, IFBench: 63.49 } },
