@@ -87,8 +87,8 @@ const models = [
   { name: "Gemini-3-pro-preview", provider: "Google", scores: { MRCR: 98.40, Tau2Bench: 63, VitaBench: 25, MultiChallenge: 68.15, IFBench: 59.26 } },
   { name: "GLM-4.6", provider: "智谱", scores: { MRCR: 74.20, Tau2Bench: 63, VitaBench: 19, MultiChallenge: 46.09, IFBench: 48.80 } },
   { name: "GLM-4.7", provider: "智谱", scores: { MRCR: 72.33, Tau2Bench: 69, VitaBench: 19, MultiChallenge: 59.63, IFBench: 63.81 } },
-  { name: "Minimax-m2", provider: "Minimax", scores: { MRCR: 51.58, Tau2Bench: 66, VitaBench: 2, MultiChallenge: 57.38, IFBench: 70.55 } },
-  { name: "Minimax-m2.1", provider: "Minimax", scores: { MRCR: 60.07, Tau2Bench: 64, VitaBench: 5, MultiChallenge: 48.31, IFBench: 54.42 } },
-  { name: "Kimi-k2", provider: "Kimi", scores: { MRCR: 66.43, Tau2Bench: 60, VitaBench: 10, MultiChallenge: 58.87, IFBench: 63.49 } },
+  { name: "MiniMax-M2", provider: "Minimax", scores: { MRCR: 51.58, Tau2Bench: 66, VitaBench: 2, MultiChallenge: 57.38, IFBench: 70.55 } },
+  { name: "MiniMax-M2.1", provider: "Minimax", scores: { MRCR: 60.07, Tau2Bench: 64, VitaBench: 5, MultiChallenge: 48.31, IFBench: 54.42 } },
+  { name: "Kimi-k2-thinking", provider: "Kimi", scores: { MRCR: 66.43, Tau2Bench: 60, VitaBench: 10, MultiChallenge: 58.87, IFBench: 63.49 } },
   { name: "Deepseek-v3.2", provider: "Deepseek", scores: { MRCR: 79.03, Tau2Bench: 62, VitaBench: 24, MultiChallenge: 47.37, IFBench: 59.55 } },
 ];
