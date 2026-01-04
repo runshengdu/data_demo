@@ -53,27 +53,11 @@ function renderBarRows(containerId, rows, scoreField = "score") {
     const width = item[scoreField].toFixed(1);
     const row = document.createElement("div");
     row.className = "bar-row";
-
-    // Find full model data for detailed scores
-    const fullModelData = models.find(m => m.name === item.name);
-    const detailHtml = fullModelData ? `
-      <div class="model-details" id="details-${containerId}-${idx}">
-        <div class="detail-grid">
-          ${benchmarks.map(b => `
-            <div class="detail-item">
-              <span class="detail-name">${b}</span>
-              <span class="detail-val">${formatPercent(fullModelData.scores[b])}</span>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    ` : '';
-
     row.innerHTML = `
       <div class="bar-head">
         <div class="model-info">
           <span class="rank">${idx + 1}</span>
-          <span class="badge" onclick="toggleDetails('${containerId}-${idx}')">${item.name}</span>
+          <span class="badge">${item.name}</span>
           <span class="provider">${item.provider}</span>
         </div>
         <span class="score">${formatPercent(item[scoreField])}</span>
@@ -81,17 +65,9 @@ function renderBarRows(containerId, rows, scoreField = "score") {
       <div class="bar-track">
         <div class="bar-fill" style="width:${width}%;"></div>
       </div>
-      ${detailHtml}
     `;
     container.appendChild(row);
   });
-}
-
-function toggleDetails(id) {
-  const details = document.getElementById(`details-${id}`);
-  if (details) {
-    details.classList.toggle('active');
-  }
 }
 
 function renderBenchmarkBars(containerId, key) {

@@ -14,8 +14,8 @@
     </div>
     <div class="tabs-container">
       <button class="tab-btn active" onclick="showTab('agentic')">智能体指数</button>
-      <button class="tab-btn" onclick="showTab('finance')">金融指数（开发中）</button>
-      <button class="tab-btn" onclick="showTab('ecommerce')">电商指数（开发中）</button>
+      <button class="tab-btn" onclick="showTab('finance')">金融指数（规划中）</button>
+      <button class="tab-btn" onclick="showTab('comparison')">模型对比</button>
     </div>
   </header>
   <main>
@@ -23,6 +23,10 @@
     <div id="agentic" class="tab-content active">
       <div class="leaderboard-card">
         <h3 class="section-title">智能体指数表现排行榜</h3>
+        <div class="section-meta">
+          <span class="meta-updated">更新时间：2025-12-31</span>
+          <span class="meta-desc">智能体指数衡量的是LLM的通用Agent能力，包括记忆能力、工具调用、规划、编程等，该指数综合了多个评测集的平均表现，分数越高代表模型在Agent任务中的能力越强</span>
+        </div>
         <div class="bars" id="agentic-bars"></div>
       </div>
 
@@ -30,28 +34,85 @@
       <div class="grid">
         <div class="tile">
           <strong>MRCR</strong>
-          <span>测试LLM的长文本定位和推理能力</span>
+          <span>长文本召回能力</span>
           <a href="./mrcr.html">查看详情 →</a>
         </div>
         <div class="tile">
           <strong>Tau2Bench</strong>
-          <span>聚焦于航空、零售、电信场景，评估LLM的工具调用能力</span>
+          <span>工具调用能力</span>
           <a href="./tau2bench.html">查看详情 →</a>
         </div>
         <div class="tile">
           <strong>VitaBench</strong>
-          <span>聚焦于外卖、餐饮、旅游真实生活场景，评估LLM的工具调用和规划能力</span>
+          <span>工具调用和规划能力</span>
           <a href="./vitabench.html">查看详情 →</a>
         </div>
         <div class="tile">
           <strong>MultiChallenge</strong>
-          <span>评估LLM在多轮对话中的指令跟随能力。</span>
+          <span>指令跟随能力</span>
           <a href="./multichallenge.html">查看详情 →</a>
         </div>
         <div class="tile">
           <strong>IFBench</strong>
-          <span>评估LLM在处理从未见过的格式、字数控制、关键词排除等约束时的指令跟随能力</span>
+          <span>指令跟随能力</span>
           <a href="./ifbench.html">查看详情 →</a>
+        </div>
+        <div class="tile">
+          <strong>Terminal-bench-2</strong>
+          <span>编程能力（规划中）</span>
+        </div>
+        <div class="tile">
+          <strong>Toolathon</strong>
+          <span>工具调用和规划能力（规划中）</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison Tab -->
+    <div id="comparison" class="tab-content">
+      <div class="leaderboard-card">
+        <h3 class="section-title">模型与评测集对比</h3>
+        
+        <div class="comparison-controls">
+          <div class="control-group">
+            <h4>选择模型</h4>
+            <div class="custom-select" id="model-select-container">
+              <div class="select-trigger" onclick="toggleDropdown(event, 'model-dropdown')">
+                <div class="selected-tags" id="model-tags"></div>
+                <span class="placeholder">点击搜索并选择模型...</span>
+              </div>
+              <div class="select-dropdown" id="model-dropdown">
+                <input type="text" class="search-input" placeholder="搜索模型..." oninput="filterOptions('model', this.value)" onclick="event.stopPropagation()">
+                <div id="model-options" class="options-list"></div>
+              </div>
+            </div>
+          </div>
+          <div class="control-group">
+            <h4>选择评测集</h4>
+            <div class="custom-select" id="benchmark-select-container">
+              <div class="select-trigger" onclick="toggleDropdown(event, 'benchmark-dropdown')">
+                <div class="selected-tags" id="benchmark-tags"></div>
+                <span class="placeholder">点击搜索并选择评测集...</span>
+              </div>
+              <div class="select-dropdown" id="benchmark-dropdown">
+                <input type="text" class="search-input" placeholder="搜索评测集..." oninput="filterOptions('benchmark', this.value)" onclick="event.stopPropagation()">
+                <div id="benchmark-options" class="options-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="comparison-table-container">
+          <table id="comparison-table">
+            <thead>
+              <tr id="table-header">
+                <!-- Headers will be injected here -->
+              </tr>
+            </thead>
+            <tbody id="table-body">
+              <!-- Body will be injected here -->
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -91,7 +152,143 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       renderAgenticBars("agentic-bars");
+      initComparison();
     });
+
+    // Comparison Logic
+    const selectedModels = new Set();
+    const selectedBenchmarks = new Set();
+    const MAX_SELECTION = 20;
+
+    function initComparison() {
+      models.slice(0, MAX_SELECTION).forEach(m => selectedModels.add(m.name));
+      benchmarks.slice(0, MAX_SELECTION).forEach(b => selectedBenchmarks.add(b));
+
+      renderSelectors();
+      renderComparisonTable();
+
+      // Close dropdowns when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.custom-select')) {
+          document.querySelectorAll('.select-dropdown').forEach(d => d.classList.remove('show'));
+        }
+      });
+    }
+
+    function toggleDropdown(event, id) {
+      event.stopPropagation();
+      const dropdown = document.getElementById(id);
+      const isShow = dropdown.classList.contains('show');
+      
+      // Close all other dropdowns
+      document.querySelectorAll('.select-dropdown').forEach(d => d.classList.remove('show'));
+      
+      if (!isShow) {
+        dropdown.classList.add('show');
+        dropdown.querySelector('.search-input').focus();
+      }
+    }
+
+    function filterOptions(type, query) {
+      renderOptions(type, query);
+    }
+
+    function renderSelectors() {
+      renderTags('model');
+      renderTags('benchmark');
+      renderOptions('model');
+      renderOptions('benchmark');
+    }
+
+    function renderTags(type) {
+      const container = document.getElementById(`${type}-tags`);
+      const placeholder = container.nextElementSibling;
+      const set = type === 'model' ? selectedModels : selectedBenchmarks;
+      
+      if (set.size === 0) {
+        container.innerHTML = '';
+        placeholder.style.display = 'block';
+        return;
+      }
+
+      placeholder.style.display = 'none';
+      container.innerHTML = Array.from(set).map(value => `
+        <span class="tag">
+          ${value}
+          <span class="remove-tag" onclick="event.stopPropagation(); toggleSelection('${type}', '${value}')">&times;</span>
+        </span>
+      `).join('');
+    }
+
+    function renderOptions(type, query = '') {
+      const container = document.getElementById(`${type}-options`);
+      const set = type === 'model' ? selectedModels : selectedBenchmarks;
+      const data = type === 'model' ? models.map(m => m.name) : benchmarks;
+      
+      const filtered = data.filter(item => 
+        item.toLowerCase().includes(query.toLowerCase())
+      );
+
+      container.innerHTML = filtered.map(item => `
+        <div class="option-item ${set.has(item) ? 'selected' : ''}" 
+             onclick="toggleSelection('${type}', '${item}')">
+          ${item}
+        </div>
+      `).join('');
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div style="padding: 1rem; color: var(--text-muted); text-align: center;">无匹配结果</div>';
+      }
+    }
+
+    function toggleSelection(type, value) {
+      const set = type === 'model' ? selectedModels : selectedBenchmarks;
+      
+      if (set.has(value)) {
+        set.delete(value);
+      } else {
+        if (set.size >= MAX_SELECTION) {
+          alert(`最多只能选择 ${MAX_SELECTION} 项`);
+          return;
+        }
+        set.add(value);
+      }
+      
+      renderTags(type);
+      renderOptions(type, document.querySelector(`#${type}-dropdown .search-input`).value);
+      renderComparisonTable();
+    }
+
+    function renderComparisonTable() {
+      const thead = document.getElementById('table-header');
+      const tbody = document.getElementById('table-body');
+      
+      const activeModels = models.filter(m => selectedModels.has(m.name));
+      const activeBenchmarks = benchmarks.filter(b => selectedBenchmarks.has(b));
+
+      thead.innerHTML = `
+        <th>模型</th>
+        ${activeBenchmarks.map(b => `<th>${b}</th>`).join('')}
+      `;
+
+      if (activeModels.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${activeBenchmarks.length + 1}" style="text-align:center; padding: 2rem;">请选择至少一个模型</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = activeModels.map(m => `
+        <tr>
+          <td>
+            <strong>${m.name}</strong>
+            <div style="font-size: 0.8em; color: var(--text-muted);">${m.provider}</div>
+          </td>
+          ${activeBenchmarks.map(b => {
+             const score = m.scores[b];
+             return `<td class="score-cell">${formatPercent(score)}</td>`;
+          }).join('')}
+        </tr>
+      `).join('');
+    }
   </script>
 </body>
 </html>
