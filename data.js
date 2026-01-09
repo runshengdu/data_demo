@@ -91,4 +91,5 @@ const models = [
   { name: "MiniMax-M2.1", provider: "Minimax", scores: { MRCR: 60.07, Tau2Bench: 64, VitaBench: 5, MultiChallenge: 48.31, IFBench: 54.42 } },
   { name: "Kimi-k2-thinking", provider: "Kimi", scores: { MRCR: 66.43, Tau2Bench: 60, VitaBench: 10, MultiChallenge: 58.87, IFBench: 63.49 } },
   { name: "Deepseek-v3.2", provider: "Deepseek", scores: { MRCR: 79.03, Tau2Bench: 62, VitaBench: 24, MultiChallenge: 47.37, IFBench: 59.55 } },
+  { name: "doubao-seed-1.8", provider: "字节跳动", scores: { MRCR: 67.39, Tau2Bench: 63, VitaBench: 26, MultiChallenge: 48.64, IFBench: 55.08 } }
 ];
