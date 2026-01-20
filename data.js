@@ -328,10 +328,10 @@ async function renderPriceChart(containerId, metricKey = 'agentic') {
     <text x="${w/2}" y="25" text-anchor="middle" font-weight="bold" fill="#333" font-size="16">Model Performance vs Price</text>
     
     <!-- Y Axis Label -->
-    <text x="20" y="${h/2}" transform="rotate(-90, 20, ${h/2})" text-anchor="middle" fill="#666" font-size="16">Test Score</text>
+    <text x="20" y="${h/2}" transform="rotate(-90, 20, ${h/2})" text-anchor="middle" fill="#666" font-size="16">评测结果</text>
     
     <!-- X Axis Label -->
-    <text x="${w/2}" y="${h-15}" text-anchor="middle" fill="#666" font-size="16">Price (RMB / Million Tokens)</text>
+    <text x="${w/2}" y="${h-15}" text-anchor="middle" fill="#666" font-size="16">价格 (RMB/百万token)</text>
     
     <!-- Grid Lines & Axes -->
     <!-- X Axis -->
