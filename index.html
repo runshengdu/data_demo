@@ -31,6 +31,17 @@
         <div class="bars" id="agentic-bars"></div>
       </div>
 
+      <div class="leaderboard-card" style="margin-top: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3 class="section-title" style="margin-bottom: 0;">模型性价比分析 (Performance vs Price)</h3>
+          <select id="price-chart-metric" onchange="updatePriceChart(this.value)" style="padding: 0.5rem; border-radius: 4px; border: 1px solid #e2e8f0; min-width: 200px;">
+            <option value="agentic">智能体指数 (Agentic Index)</option>
+          </select>
+        </div>
+        <div id="price-chart" style="width: 100%; height: 400px;"></div>
+        <div id="price-chart-legend" style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; justify-content: center; font-size: 0.9rem; color: #666;"></div>
+      </div>
+
       <h3 class="section-title">核心评估指标</h3>
       <div class="grid">
         <div class="tile">
@@ -59,12 +70,8 @@
           <a href="./ifbench.html">查看详情 →</a>
         </div>
         <div class="tile">
-          <strong>Terminal-bench-2</strong>
-          <span>编程能力（规划中）</span>
-        </div>
-        <div class="tile">
-          <strong>longBench v2</strong>
-          <span>长文本召回能力（规划中）</span>
+          <strong>LivecodeBench-pro</strong>
+          <span>编程能力（测试中）</span>
         </div>
       </div>
     </div>
@@ -151,8 +158,10 @@
       });
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+      await ensureDataLoaded();
       renderAgenticBars("agentic-bars");
+      renderPriceChart("price-chart");
       initComparison();
     });
 
