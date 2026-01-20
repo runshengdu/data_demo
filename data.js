@@ -324,85 +324,108 @@ async function renderPriceChart(containerId, metricKey = 'agentic') {
   const yStep = (yDomainMax - yDomainMin) / yTicksCount;
   const yTicks = Array.from({length: yTicksCount + 1}, (_, i) => yDomainMin + yStep * i);
 
-  let svgContent = `<svg width="100%" height="100%" viewBox="0 0 ${w} ${h}" style="background: white; border-radius: 8px; border: 1px solid #e2e8f0;">
-    <text x="${w/2}" y="25" text-anchor="middle" font-weight="bold" fill="#333" font-size="16">Model Performance vs Price</text>
-    
-    <!-- Y Axis Label -->
-    <text x="20" y="${h/2}" transform="rotate(-90, 20, ${h/2})" text-anchor="middle" fill="#666" font-size="16">评测结果</text>
-    
-    <!-- X Axis Label -->
-    <text x="${w/2}" y="${h-15}" text-anchor="middle" fill="#666" font-size="16">价格 (RMB/百万token)</text>
-    
-    <!-- Grid Lines & Axes -->
-    <!-- X Axis -->
-    <line x1="${padding.left}" y1="${h-padding.bottom}" x2="${w-padding.right}" y2="${h-padding.bottom}" stroke="#333" stroke-width="1"/>
-    ${xTicks.map(tick => {
+  // Check if SVG exists
+  let svg = container.querySelector('svg');
+  let xGrid, yGrid, pointsGroup;
+
+  if (!svg) {
+    // Initial Render
+    container.innerHTML = `
+      <svg width="100%" height="100%" viewBox="0 0 ${w} ${h}" style="background: white; border-radius: 8px; border: 1px solid #e2e8f0;">
+        <text x="${w/2}" y="25" text-anchor="middle" font-weight="bold" fill="#333" font-size="16">Model Performance vs Price</text>
+        
+        <!-- Y Axis Label -->
+        <text x="20" y="${h/2}" transform="rotate(-90, 20, ${h/2})" text-anchor="middle" fill="#666" font-size="16">评测结果</text>
+        
+        <!-- X Axis Label -->
+        <text x="${w/2}" y="${h-15}" text-anchor="middle" fill="#666" font-size="16">价格 (RMB/百万token)</text>
+        
+        <!-- Axes lines -->
+        <line x1="${padding.left}" y1="${h-padding.bottom}" x2="${w-padding.right}" y2="${h-padding.bottom}" stroke="#333" stroke-width="1"/>
+        <line x1="${padding.left}" y1="${padding.top}" x2="${padding.left}" y2="${h-padding.bottom}" stroke="#333" stroke-width="1"/>
+        
+        <g id="x-axis-grid"></g>
+        <g id="y-axis-grid"></g>
+        <g id="data-points"></g>
+      </svg>
+    `;
+    svg = container.querySelector('svg');
+  }
+
+  // Select Groups
+  xGrid = svg.querySelector('#x-axis-grid');
+  yGrid = svg.querySelector('#y-axis-grid');
+  pointsGroup = svg.querySelector('#data-points');
+
+  // Update X Grid
+  xGrid.innerHTML = xTicks.map(tick => {
       const x = xScale(tick);
       return `
         <line x1="${x}" y1="${h-padding.bottom}" x2="${x}" y2="${h-padding.bottom + 5}" stroke="#333" />
         <text x="${x}" y="${h-padding.bottom + 20}" text-anchor="middle" font-size="16" fill="#666">${tick.toFixed(1)}</text>
         <line x1="${x}" y1="${padding.top}" x2="${x}" y2="${h-padding.bottom}" stroke="#eee" stroke-dasharray="4" />
       `;
-    }).join('')}
+  }).join('');
 
-    <!-- Y Axis -->
-    <line x1="${padding.left}" y1="${padding.top}" x2="${padding.left}" y2="${h-padding.bottom}" stroke="#333" stroke-width="1"/>
-    ${yTicks.map(tick => {
+  // Update Y Grid
+  yGrid.innerHTML = yTicks.map(tick => {
       const y = yScale(tick);
       return `
         <line x1="${padding.left - 5}" y1="${y}" x2="${padding.left}" y2="${y}" stroke="#333" />
         <text x="${padding.left - 10}" y="${y + 4}" text-anchor="end" font-size="16" fill="#666">${tick.toFixed(0)}</text>
         <line x1="${padding.left}" y1="${y}" x2="${w-padding.right}" y2="${y}" stroke="#eee" stroke-dasharray="4" />
       `;
-    }).join('')}
-  `;
+  }).join('');
 
-  // Draw Points
+  // Update Points
+  const existingCircles = Array.from(pointsGroup.querySelectorAll('circle'));
+  const tooltip = getTooltipElement();
+
   chartData.forEach(d => {
     const cx = xScale(d.price);
     const cy = yScale(d.score);
     const color = getModelColor(d.name);
-    svgContent += `
-      <g class="chart-point" style="cursor: pointer;">
-        <circle cx="${cx}" cy="${cy}" r="6" fill="${color}" fill-opacity="0.9" stroke="white" stroke-width="2"
-          data-name="${d.name}"
-          data-score="${d.score.toFixed(2)}"
-          data-price="${d.price.toFixed(2)}"
-        >
-        </circle>
-      </g>
-    `;
+
+    let circle = existingCircles.find(c => c.getAttribute('data-name') === d.name);
+
+    if (circle) {
+      // Update existing
+      circle.setAttribute('cx', cx);
+      circle.setAttribute('cy', cy);
+      circle.setAttribute('data-score', d.score.toFixed(2));
+      circle.setAttribute('data-price', d.price.toFixed(2));
+      circle.setAttribute('fill', color);
+    } else {
+      // Create new
+      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      g.setAttribute("class", "chart-point");
+      g.style.cursor = "pointer";
+      
+      const newCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      newCircle.setAttribute("cx", cx);
+      newCircle.setAttribute("cy", cy);
+      newCircle.setAttribute("r", "6");
+      newCircle.setAttribute("fill", color);
+      newCircle.setAttribute("fill-opacity", "0.9");
+      newCircle.setAttribute("stroke", "white");
+      newCircle.setAttribute("stroke-width", "2");
+      newCircle.setAttribute("data-name", d.name);
+      newCircle.setAttribute("data-score", d.score.toFixed(2));
+      newCircle.setAttribute("data-price", d.price.toFixed(2));
+      
+      g.appendChild(newCircle);
+      pointsGroup.appendChild(g);
+      
+      attachTooltipEvents(newCircle, tooltip);
+    }
   });
 
-  svgContent += `</svg>`;
-  container.innerHTML = svgContent;
-  
-  // Attach custom tooltip events
-  const points = container.querySelectorAll('.chart-point circle');
-  const tooltip = getTooltipElement();
-
-  points.forEach(point => {
-    point.addEventListener('mouseenter', (e) => {
-      const name = e.target.getAttribute('data-name');
-      const score = e.target.getAttribute('data-score');
-      const price = e.target.getAttribute('data-price');
-      
-      tooltip.innerHTML = `
-        <div style="font-weight: bold; margin-bottom: 4px;">${name}</div>
-        <div>Score: <span style="color: #60a5fa;">${score}</span></div>
-        <div>Price: <span style="color: #fbbf24;">${price}</span></div>
-      `;
-      tooltip.style.display = 'block';
-      updateTooltipPosition(e, tooltip);
-    });
-    
-    point.addEventListener('mousemove', (e) => {
-      updateTooltipPosition(e, tooltip);
-    });
-    
-    point.addEventListener('mouseleave', () => {
-      tooltip.style.display = 'none';
-    });
+  // Remove old points
+  existingCircles.forEach(circle => {
+     const name = circle.getAttribute('data-name');
+     if (!chartData.find(d => d.name === name)) {
+       circle.parentNode.remove();
+     }
   });
 
   // Render Legend
@@ -418,6 +441,30 @@ async function renderPriceChart(containerId, metricKey = 'agentic') {
       `;
     }).join('');
   }
+}
+
+function attachTooltipEvents(element, tooltip) {
+    element.addEventListener('mouseenter', (e) => {
+      const name = e.target.getAttribute('data-name');
+      const score = e.target.getAttribute('data-score');
+      const price = e.target.getAttribute('data-price');
+      
+      tooltip.innerHTML = `
+        <div style="font-weight: bold; margin-bottom: 4px;">${name}</div>
+        <div>Score: <span style="color: #60a5fa;">${score}</span></div>
+        <div>Price: <span style="color: #fbbf24;">${price}</span></div>
+      `;
+      tooltip.style.display = 'block';
+      updateTooltipPosition(e, tooltip);
+    });
+    
+    element.addEventListener('mousemove', (e) => {
+      updateTooltipPosition(e, tooltip);
+    });
+    
+    element.addEventListener('mouseleave', () => {
+      tooltip.style.display = 'none';
+    });
 }
 
 // Tooltip Helper Functions

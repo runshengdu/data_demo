@@ -639,6 +639,11 @@ footer {
   color: var(--accent);
 }
 
+/* Chart Point Animation */
+.chart-point circle {
+  transition: cx 0.5s ease-in-out, cy 0.5s ease-in-out;
+}
+
 @media (min-width: 768px) {
   .comparison-controls {
     flex-direction: row;
