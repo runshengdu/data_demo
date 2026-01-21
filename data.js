@@ -290,7 +290,8 @@ async function renderPriceChart(containerId, metricKey = 'agentic') {
     return {
       name: item.name,
       score: item.score,
-      price: price
+      price: price,
+      provider: model.provider || 'Unknown'
     };
   });
 
@@ -431,15 +432,51 @@ async function renderPriceChart(containerId, metricKey = 'agentic') {
   // Render Legend
   const legendContainer = document.getElementById('price-chart-legend');
   if (legendContainer) {
-    legendContainer.innerHTML = chartData.map(d => {
+    // Sort chartData by provider then name for legend display
+    const sortedForLegend = [...chartData].sort((a, b) => {
+      const pA = (a.provider || '').toLowerCase();
+      const pB = (b.provider || '').toLowerCase();
+      if (pA < pB) return -1;
+      if (pA > pB) return 1;
+      return a.name.localeCompare(b.name);
+    });
+
+    legendContainer.innerHTML = sortedForLegend.map(d => {
       const color = getModelColor(d.name);
       return `
-        <div style="display: flex; align-items: center; gap: 4px;">
+        <div class="legend-item" data-model="${d.name}" style="display: flex; align-items: center; gap: 4px; cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: background 0.2s;">
           <div style="width: 10px; height: 10px; border-radius: 50%; background: ${color};"></div>
-          <span>${d.name}</span>
+          <span style="font-size: 0.9em;">${d.name}</span>
+          <span style="font-size: 0.75em; color: #94a3b8;">(${d.provider})</span>
         </div>
       `;
     }).join('');
+
+    // Attach hover events for legend items
+    const legendItems = legendContainer.querySelectorAll('.legend-item');
+    legendItems.forEach(item => {
+      item.addEventListener('mouseenter', () => {
+        const modelName = item.getAttribute('data-model');
+        // Highlight logic
+        item.style.background = '#f1f5f9';
+        const circle = pointsGroup.querySelector(`circle[data-name="${modelName}"]`);
+        if (circle) {
+          circle.setAttribute('r', '12'); // Magnify
+          circle.style.strokeWidth = '3';
+        }
+      });
+
+      item.addEventListener('mouseleave', () => {
+        const modelName = item.getAttribute('data-model');
+        // Reset logic
+        item.style.background = 'transparent';
+        const circle = pointsGroup.querySelector(`circle[data-name="${modelName}"]`);
+        if (circle) {
+          circle.setAttribute('r', '6'); // Reset radius
+          circle.style.strokeWidth = '2';
+        }
+      });
+    });
   }
 }
 

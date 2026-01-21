@@ -641,7 +641,7 @@ footer {
 
 /* Chart Point Animation */
 .chart-point circle {
-  transition: cx 0.5s ease-in-out, cy 0.5s ease-in-out;
+  transition: cx 0.5s ease-in-out, cy 0.5s ease-in-out, r 0.3s ease-in-out;
 }
 
 @media (min-width: 768px) {
