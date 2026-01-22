@@ -9,7 +9,7 @@
 <body>
   <header></header>
   <main>
-    <div id="data-load-warning" style="display: none; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.95rem;">
+    <div id="data-load-warning" style="display: none; background: #fffbeb; color: #b45309; border: 1px solid #fde68a; padding: 0.75rem 1rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.875rem;">
       数据加载失败，请使用本地静态服务器打开页面（不要直接用 file:// 打开），并检查 data_eval.csv 与 data_others.csv 是否存在。
     </div>
     <!-- Agentic Index Tab -->
@@ -71,43 +71,53 @@
     <!-- Model Selection Tab -->
     <div id="selection" class="tab-content">
       <div class="leaderboard-card">
-        <h3 class="section-title">模型选型 (Model Selection)</h3>
+        <h3 class="section-title">模型选型</h3>
+        <div class="section-meta">
+          <span class="meta-desc">根据你自定义的场景和指标权重，以获得最符合自己需求的模型。</span>
+        </div>
         
         <div class="selection-controls" style="display: flex; flex-direction: column; gap: 1.5rem;">
           <!-- Step 1: Scenario -->
           <div class="control-group">
             <h4 style="margin-bottom: 0.5rem;">1. 选择场景 (Scenario)</h4>
             <select id="sel-scenario" class="form-select" onchange="updateSelectionResults()" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px;">
-              <option value="agentic">通用智能体 (General Agent)</option>
-              <option value="finance">金融 (Finance) - 暂无数据</option>
-              <option value="ecommerce">电商 (E-commerce) - 暂无数据</option>
+              <option value="agentic">通用智能体（智能体指数)</option>
+              <option value="finance">金融 (金融指数) - 暂无数据</option>
+              <option value="ecommerce">电商 (电商指数) - 暂无数据</option>
             </select>
           </div>
 
           <!-- Step 2: Weights -->
           <div class="control-group">
-            <h4 style="margin-bottom: 0.5rem;">2. 分配权重 (Weights 1-10)</h4>
+            <h4 style="margin-bottom: 0.5rem;">2. 分配权重 (Weights 1-5)</h4>
             <div class="weight-sliders" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
               <div class="slider-item" style="background: #f8fafc; padding: 1rem; border-radius: 6px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                  <label>性能 (Performance)</label>
-                  <span id="val-perf" style="font-weight: bold; color: #2563eb;">5</span>
+                  <label>性能强</label>
+                  <span id="val-perf" style="font-weight: bold; color: #2563eb;">3</span>
                 </div>
-                <input type="range" id="w-perf" min="1" max="10" value="5" oninput="updateSliderVal('perf'); updateSelectionResults()" style="width: 100%;">
+                <input type="range" id="w-perf" min="1" max="5" value="3" oninput="updateSliderVal('perf'); updateSelectionResults()" style="width: 100%;">
               </div>
               <div class="slider-item" style="background: #f8fafc; padding: 1rem; border-radius: 6px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                  <label>速度 (Speed)</label>
-                  <span id="val-speed" style="font-weight: bold; color: #2563eb;">5</span>
+                  <label>速度快</label>
+                  <span id="val-speed" style="font-weight: bold; color: #2563eb;">3</span>
                 </div>
-                <input type="range" id="w-speed" min="1" max="10" value="5" oninput="updateSliderVal('speed'); updateSelectionResults()" style="width: 100%;">
+                <input type="range" id="w-speed" min="1" max="5" value="3" oninput="updateSliderVal('speed'); updateSelectionResults()" style="width: 100%;">
               </div>
               <div class="slider-item" style="background: #f8fafc; padding: 1rem; border-radius: 6px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                  <label>价格 (Price)</label>
-                  <span id="val-price" style="font-weight: bold; color: #2563eb;">5</span>
+                  <label>价格低</label>
+                  <span id="val-price" style="font-weight: bold; color: #2563eb;">3</span>
                 </div>
-                <input type="range" id="w-price" min="1" max="10" value="5" oninput="updateSliderVal('price'); updateSelectionResults()" style="width: 100%;">
+                <input type="range" id="w-price" min="1" max="5" value="3" oninput="updateSliderVal('price'); updateSelectionResults()" style="width: 100%;">
+              </div>
+              <div class="slider-item" style="background: #f8fafc; padding: 1rem; border-radius: 6px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                  <label>上下文窗口</label>
+                  <span id="val-context" style="font-weight: bold; color: #2563eb;">3</span>
+                </div>
+                <input type="range" id="w-context" min="1" max="5" value="3" oninput="updateSliderVal('context'); updateSelectionResults()" style="width: 100%;">
               </div>
             </div>
           </div>
@@ -251,16 +261,21 @@
       const wPerf = parseInt(document.getElementById('w-perf').value);
       const wSpeed = parseInt(document.getElementById('w-speed').value);
       const wPrice = parseInt(document.getElementById('w-price').value);
+      const wContext = parseInt(document.getElementById('w-context').value);
       
       const filterOpenSource = document.getElementById('sel-opensource').value;
       const filterNation = document.getElementById('sel-nation').value;
       
       const speeds = models.map(m => parseFloat(m.tokens_per_sec) || 0);
       const prices = models.map(m => (parseFloat(m.cost_usd) || 0) * 7.01 + (parseFloat(m.cost_rmb) || 0));
+      const contexts = models.map(m => parseFloat(m.context_window) || 0);
+
       const maxSpeed = Math.max(...speeds);
       const minSpeed = Math.min(...speeds);
       const maxPrice = Math.max(...prices);
       const minPrice = Math.min(...prices);
+      const maxContext = Math.max(...contexts);
+      const minContext = Math.min(...contexts);
 
       const results = models.map(m => {
         // 1. Calculate Score
@@ -284,14 +299,18 @@
         // Linear inverse: 0 price -> 100 score, max price -> 0 score
         const priceScore = maxPrice === minPrice ? 100 : ((maxPrice - price) / (maxPrice - minPrice)) * 100;
         
+        // Context Window (Larger is better)
+        const context = parseFloat(m.context_window) || 0;
+        const contextScore = maxContext === minContext ? 100 : ((context - minContext) / (maxContext - minContext)) * 100;
+        
         // Weighted Sum
-        const totalWeight = wPerf + wSpeed + wPrice;
-        const finalScore = (perfScore * wPerf + speedScore * wSpeed + priceScore * wPrice) / totalWeight;
+        const totalWeight = wPerf + wSpeed + wPrice + wContext;
+        const finalScore = (perfScore * wPerf + speedScore * wSpeed + priceScore * wPrice + contextScore * wContext) / totalWeight;
         
         return {
           model: m,
           finalScore,
-          details: { perfScore, speed, speedScore, price, priceScore }
+          details: { perfScore, speed, speedScore, price, priceScore, context, contextScore }
         };
       });
       
@@ -319,32 +338,36 @@
       if (!container) return; // Guard against missing element
 
       container.innerHTML = filtered.map((r, idx) => `
-        <div class="result-card" style="border: 1px solid #e2e8f0; padding: 1rem; margin-bottom: 1rem; border-radius: 8px; background: white;">
+        <div class="result-card" style="border: 1px solid var(--border); padding: 1rem; margin-bottom: 1rem; border-radius: var(--radius); background: var(--bg-card);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
              <div style="display: flex; align-items: center; gap: 0.5rem;">
-               <span class="rank-badge" style="background: #3b82f6; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">${idx + 1}</span>
-               <strong style="font-size: 1.1rem;">${r.model.name}</strong>
-               <span style="font-size: 0.8rem; color: #64748b; border: 1px solid #cbd5e1; padding: 0 4px; border-radius: 4px;">${r.model.provider}</span>
-              ${((r.model.open_source || '').toString().trim().toLowerCase() === 'y') ? '<span style="font-size: 0.8rem; background: #dcfce7; color: #166534; padding: 0 4px; border-radius: 4px;">开源</span>' : ''}
+               <span class="rank-badge" style="background: var(--primary); color: white; width: 24px; height: 24px; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-family: monospace;">${idx + 1}</span>
+               <strong style="font-size: 1rem; color: var(--primary);">${r.model.name}</strong>
+               <span style="font-size: 0.75rem; color: var(--text-muted); border: 1px solid var(--border); padding: 0 4px; border-radius: 2px;">${r.model.provider}</span>
+              ${((r.model.open_source || '').toString().trim().toLowerCase() === 'y') ? '<span style="font-size: 0.75rem; background: #f0fdf4; border: 1px solid #86efac; color: #166534; padding: 0 4px; border-radius: 2px;">开源</span>' : ''}
              </div>
              <div style="text-align: right;">
-               <div style="font-size: 1.5rem; font-weight: bold; color: #2563eb;">${r.finalScore.toFixed(1)}</div>
-               <div style="font-size: 0.8rem; color: #64748b;">综合评分</div>
+               <div style="font-size: 1.25rem; font-weight: 600; color: var(--primary); font-family: monospace;">${r.finalScore.toFixed(1)}</div>
+               <div style="font-size: 0.75rem; color: var(--text-muted);">综合评分</div>
              </div>
           </div>
           
-          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; font-size: 0.9rem;">
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; font-size: 0.8rem;">
             <div>
-              <div style="color: #64748b;">性能 (Perf)</div>
-              <div>${formatPercent(r.details.perfScore)}</div>
+              <div style="color: var(--text-muted);">性能</div>
+              <div style="font-weight: 500; color: var(--text-main);">${formatPercent(r.details.perfScore)}</div>
             </div>
             <div>
-              <div style="color: #64748b;">速度 (Speed)</div>
-              <div>${r.details.speed} t/s</div>
+              <div style="color: var(--text-muted);">速度</div>
+              <div style="font-weight: 500; color: var(--text-main);">${r.details.speed} t/s</div>
             </div>
             <div>
-              <div style="color: #64748b;">价格 (Price)</div>
-              <div>¥${r.details.price.toFixed(2)}</div>
+              <div style="color: var(--text-muted);">价格</div>
+              <div style="font-weight: 500; color: var(--text-main);">${r.details.price.toFixed(4)}</div>
+            </div>
+            <div>
+              <div style="color: var(--text-muted);">上下文</div>
+              <div style="font-weight: 500; color: var(--text-main);">${(r.details.context >= 1000) ? (r.details.context/1000).toFixed(0) + 'k' : r.details.context}</div>
             </div>
           </div>
         </div>

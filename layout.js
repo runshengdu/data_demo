@@ -24,7 +24,11 @@ function injectLayout(pageType = 'subpage') {
       `;
     }
     
-    header.innerHTML = headerContent;
+    header.innerHTML = `
+      <div class="header-inner">
+        ${headerContent}
+      </div>
+    `;
   }
 
   // Inject Footer
@@ -32,6 +36,10 @@ function injectLayout(pageType = 'subpage') {
   if (footer) {
     const year = new Date().getFullYear();
     const pageName = document.title.split('-')[0].trim();
-    footer.innerHTML = `<span>qq3dworld.com • ${pageName} Analysis</span>`;
+    footer.innerHTML = `
+      <div class="footer-inner">
+        <span>qq3dworld.com • ${pageName} Analysis</span>
+      </div>
+    `;
   }
 }

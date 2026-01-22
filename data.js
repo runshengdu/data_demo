@@ -228,7 +228,7 @@ function renderBarRows(containerId, rows, scoreField = "score") {
          
          // Define some colors for subsets to distinguish them
          // Using a simple rotation of colors
-         const colors = ['#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
+         const colors = ['#059669', '#d97706', '#7c3aed', '#db2777', '#0891b2'];
          const barColor = colors[subIdx % colors.length];
          const subWidth = sub.score.toFixed(1);
 
@@ -534,9 +534,9 @@ function attachTooltipEvents(element, tooltip) {
       const price = e.target.getAttribute('data-price');
       
       tooltip.innerHTML = `
-        <div style="font-weight: bold; margin-bottom: 4px;">${name}</div>
-        <div>Score: <span style="color: #60a5fa;">${score}</span></div>
-        <div>Price: <span style="color: #fbbf24;">${price}</span></div>
+        <div style="font-weight: 600; margin-bottom: 4px;">${name}</div>
+        <div>Score: <span style="color: #38bdf8;">${score}</span></div>
+        <div>Price: <span style="color: #fcd34d;">${price}</span></div>
       `;
       tooltip.style.display = 'block';
       updateTooltipPosition(e, tooltip);
