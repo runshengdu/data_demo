@@ -7,19 +7,11 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <header>
-    <div class="header-left">
-      <a class="home-link" href="./index.html">首页</a>
-      <h1>LLM测试榜单</h1>
-    </div>
-    <div class="tabs-container">
-      <button class="tab-btn active" onclick="showTab('agentic')">智能体指数</button>
-      <button class="tab-btn" onclick="showTab('finance')">金融指数（规划中）</button>
-      <button class="tab-btn" onclick="showTab('coding')">电商指数（规划中）</button>
-      <button class="tab-btn" onclick="showTab('comparison')">模型对比</button>
-    </div>
-  </header>
+  <header></header>
   <main>
+    <div id="data-load-warning" style="display: none; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.95rem;">
+      数据加载失败，请使用本地静态服务器打开页面（不要直接用 file:// 打开），并检查 data_eval.csv 与 data_others.csv 是否存在。
+    </div>
     <!-- Agentic Index Tab -->
     <div id="agentic" class="tab-content active">
       <div class="leaderboard-card">
@@ -72,6 +64,82 @@
         <div class="tile">
           <strong>LivecodeBench-pro</strong>
           <span>编程能力（测试中）</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Model Selection Tab -->
+    <div id="selection" class="tab-content">
+      <div class="leaderboard-card">
+        <h3 class="section-title">模型选型 (Model Selection)</h3>
+        
+        <div class="selection-controls" style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <!-- Step 1: Scenario -->
+          <div class="control-group">
+            <h4 style="margin-bottom: 0.5rem;">1. 选择场景 (Scenario)</h4>
+            <select id="sel-scenario" class="form-select" onchange="updateSelectionResults()" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+              <option value="agentic">通用智能体 (General Agent)</option>
+              <option value="finance">金融 (Finance) - 暂无数据</option>
+              <option value="ecommerce">电商 (E-commerce) - 暂无数据</option>
+            </select>
+          </div>
+
+          <!-- Step 2: Weights -->
+          <div class="control-group">
+            <h4 style="margin-bottom: 0.5rem;">2. 分配权重 (Weights 1-10)</h4>
+            <div class="weight-sliders" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+              <div class="slider-item" style="background: #f8fafc; padding: 1rem; border-radius: 6px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                  <label>性能 (Performance)</label>
+                  <span id="val-perf" style="font-weight: bold; color: #2563eb;">5</span>
+                </div>
+                <input type="range" id="w-perf" min="1" max="10" value="5" oninput="updateSliderVal('perf'); updateSelectionResults()" style="width: 100%;">
+              </div>
+              <div class="slider-item" style="background: #f8fafc; padding: 1rem; border-radius: 6px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                  <label>速度 (Speed)</label>
+                  <span id="val-speed" style="font-weight: bold; color: #2563eb;">5</span>
+                </div>
+                <input type="range" id="w-speed" min="1" max="10" value="5" oninput="updateSliderVal('speed'); updateSelectionResults()" style="width: 100%;">
+              </div>
+              <div class="slider-item" style="background: #f8fafc; padding: 1rem; border-radius: 6px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                  <label>价格 (Price)</label>
+                  <span id="val-price" style="font-weight: bold; color: #2563eb;">5</span>
+                </div>
+                <input type="range" id="w-price" min="1" max="10" value="5" oninput="updateSliderVal('price'); updateSelectionResults()" style="width: 100%;">
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Filters -->
+          <div class="control-group">
+            <h4 style="margin-bottom: 0.5rem;">3. 筛选条件 (Filters)</h4>
+            <div class="filters-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="filter-item">
+                <label style="display: block; margin-bottom: 0.25rem; font-size: 0.9rem; color: #64748b;">模型类型 (Type)</label>
+                <select id="sel-opensource" class="form-select" onchange="updateSelectionResults()" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                  <option value="all">全部 (All)</option>
+                  <option value="y">开源 (Open Source)</option>
+                  <option value="n">闭源 (Closed Source)</option>
+                </select>
+              </div>
+              <div class="filter-item">
+                <label style="display: block; margin-bottom: 0.25rem; font-size: 0.9rem; color: #64748b;">厂商国家 (Nation)</label>
+                <select id="sel-nation" class="form-select" onchange="updateSelectionResults()" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                  <option value="all">全部 (All)</option>
+                  <option value="中国">中国 (China)</option>
+                  <option value="美国">美国 (USA)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Results -->
+        <div class="results-section" style="margin-top: 2rem;">
+          <h4 style="margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #e2e8f0;">推荐结果 (Recommendations)</h4>
+          <div id="selection-results" class="selection-results-grid"></div>
         </div>
       </div>
     </div>
@@ -141,12 +209,12 @@
       </div>
     </div>
   </main>
-  <footer>
-    <span>qq3dworld.com • Benchmarks navigation</span>
-  </footer>
+  <footer></footer>
 
   <script src="./data.js"></script>
+  <script src="./layout.js"></script>
   <script>
+    // Tab Switching
     function showTab(tabId) {
       // Update buttons
       document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -159,11 +227,133 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
+      injectLayout('home');
       await ensureDataLoaded();
+      const warning = document.getElementById('data-load-warning');
+      if (warning) {
+        warning.style.display = (models && models.length > 0) ? 'none' : 'block';
+      }
       renderAgenticBars("agentic-bars");
       renderPriceChart("price-chart");
       initComparison();
+      updateSelectionResults();
     });
+
+    // Model Selection Logic
+    function updateSliderVal(id) {
+      document.getElementById('val-' + id).textContent = document.getElementById('w-' + id).value;
+    }
+
+    async function updateSelectionResults() {
+      await ensureDataLoaded();
+      
+      const scenario = document.getElementById('sel-scenario').value;
+      const wPerf = parseInt(document.getElementById('w-perf').value);
+      const wSpeed = parseInt(document.getElementById('w-speed').value);
+      const wPrice = parseInt(document.getElementById('w-price').value);
+      
+      const filterOpenSource = document.getElementById('sel-opensource').value;
+      const filterNation = document.getElementById('sel-nation').value;
+      
+      const speeds = models.map(m => parseFloat(m.tokens_per_sec) || 0);
+      const prices = models.map(m => (parseFloat(m.cost_usd) || 0) * 7.01 + (parseFloat(m.cost_rmb) || 0));
+      const maxSpeed = Math.max(...speeds);
+      const minSpeed = Math.min(...speeds);
+      const maxPrice = Math.max(...prices);
+      const minPrice = Math.min(...prices);
+
+      const results = models.map(m => {
+        // 1. Calculate Score
+        // Performance
+        let perfScore = 0;
+        if (scenario === 'agentic') {
+           // Compute average of benchmarks
+           const total = benchmarks.reduce((sum, b) => sum + normalizeScore(m.scores[b]), 0);
+           perfScore = benchmarks.length ? (total / benchmarks.length) : 0;
+        } else {
+           // Placeholder for finance/ecommerce
+           perfScore = 0; 
+        }
+        
+        // Speed
+        const speed = parseFloat(m.tokens_per_sec) || 0;
+        const speedScore = maxSpeed === minSpeed ? 100 : ((speed - minSpeed) / (maxSpeed - minSpeed)) * 100;
+        
+        // Price (Lower is better)
+        const price = (parseFloat(m.cost_usd)||0) * 7.01 + (parseFloat(m.cost_rmb)||0);
+        // Linear inverse: 0 price -> 100 score, max price -> 0 score
+        const priceScore = maxPrice === minPrice ? 100 : ((maxPrice - price) / (maxPrice - minPrice)) * 100;
+        
+        // Weighted Sum
+        const totalWeight = wPerf + wSpeed + wPrice;
+        const finalScore = (perfScore * wPerf + speedScore * wSpeed + priceScore * wPrice) / totalWeight;
+        
+        return {
+          model: m,
+          finalScore,
+          details: { perfScore, speed, speedScore, price, priceScore }
+        };
+      });
+      
+      // 2. Filter
+      const filtered = results.filter(r => {
+        if (filterOpenSource !== 'all') {
+          const openSourceValue = (r.model.open_source || '').toString().trim().toLowerCase();
+          const isOS = openSourceValue === 'y';
+          if (filterOpenSource === 'y' && !isOS) return false;
+          if (filterOpenSource === 'n' && isOS) return false;
+        }
+        
+        if (filterNation !== 'all') {
+           if (r.model.nation !== filterNation) return false;
+        }
+        
+        return true;
+      });
+      
+      // 3. Sort
+      filtered.sort((a, b) => b.finalScore - a.finalScore);
+      
+      // 4. Render
+      const container = document.getElementById('selection-results');
+      if (!container) return; // Guard against missing element
+
+      container.innerHTML = filtered.map((r, idx) => `
+        <div class="result-card" style="border: 1px solid #e2e8f0; padding: 1rem; margin-bottom: 1rem; border-radius: 8px; background: white;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+             <div style="display: flex; align-items: center; gap: 0.5rem;">
+               <span class="rank-badge" style="background: #3b82f6; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">${idx + 1}</span>
+               <strong style="font-size: 1.1rem;">${r.model.name}</strong>
+               <span style="font-size: 0.8rem; color: #64748b; border: 1px solid #cbd5e1; padding: 0 4px; border-radius: 4px;">${r.model.provider}</span>
+              ${((r.model.open_source || '').toString().trim().toLowerCase() === 'y') ? '<span style="font-size: 0.8rem; background: #dcfce7; color: #166534; padding: 0 4px; border-radius: 4px;">开源</span>' : ''}
+             </div>
+             <div style="text-align: right;">
+               <div style="font-size: 1.5rem; font-weight: bold; color: #2563eb;">${r.finalScore.toFixed(1)}</div>
+               <div style="font-size: 0.8rem; color: #64748b;">综合评分</div>
+             </div>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; font-size: 0.9rem;">
+            <div>
+              <div style="color: #64748b;">性能 (Perf)</div>
+              <div>${formatPercent(r.details.perfScore)}</div>
+            </div>
+            <div>
+              <div style="color: #64748b;">速度 (Speed)</div>
+              <div>${r.details.speed} t/s</div>
+            </div>
+            <div>
+              <div style="color: #64748b;">价格 (Price)</div>
+              <div>¥${r.details.price.toFixed(2)}</div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      
+      if (filtered.length === 0) {
+        container.innerHTML = '<div style="padding: 2rem; text-align: center; color: #64748b;">没有找到匹配的模型 (No models found)</div>';
+      }
+    }
 
     // Comparison Logic
     const selectedModels = new Set();

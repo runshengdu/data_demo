@@ -23,7 +23,9 @@ function formatPercent(value) {
 }
 
 function parseCSV(csvText) {
-  const lines = csvText.trim().split(/\r?\n/);
+  // Remove BOM and trim
+  const text = csvText.replace(/^\uFEFF/, '').trim();
+  const lines = text.split(/\r?\n/);
   if (lines.length < 2) return []; // Empty or just header
   
   const headers = lines[0].split(',').map(h => h.trim());
@@ -93,38 +95,83 @@ function parseCSV(csvText) {
   return result;
 }
 
-const embeddedCSV = `name,cost_usd,cost_rmb,provider,MRCR,Tau2Bench_airline,Tau2Bench_retail,VitaBench,MultiChallenge,IFBench
-GPT-5.2,1.75,,OpenAI,99.74,58,81.14,28,57.35,71.41
-Claude-Sonnet-4.5,3,,Anthropic,82.38,65,81.14,22,54.8,54.43
-Gemini-3-flash-preview,0.5,,Google,98.78,66,80.7,35,63.19,69.72
-Gemini-3-pro-preview,3,,Google,98.4,62.5,78.07,25,67.42,59.08
-GLM-4.6,,3,智谱,74.2,63,79.83,19,47.3,48.79
-GLM-4.7,,3,智谱,72.33,69,79.39,19,58.18,63.76
-MiniMax-M2,,2.1,Minimax,51.58,66,84.21,2,59.94,70.55
-MiniMax-M2.1,,2.1,Minimax,60.07,63.5,83.77,5,48.31,55.71
-Kimi-k2-thinking,,4,Kimi,66.43,60,78.51,10,60.22,62.78
-Deepseek-v3.2,,2,Deepseek,79.03,62,81.14,24,45.92,59.63
-doubao-seed-1.8,,1.3,字节跳动,67.39,63,76.76,26,46.85,55.44`;
-
 async function loadData() {
   if (dataLoadPromise) return dataLoadPromise;
   
-  // Try fetching first (for hot updates if served), fallback to embedded if it fails (file:// protocol)
-  dataLoadPromise = fetch('./data_eval.csv')
+  // Load both evaluation data and metadata
+  const pEval = fetch('./data_eval.csv')
     .then(response => {
         if (!response.ok) throw new Error('Failed to load data_eval.csv');
         return response.text();
     })
     .catch(err => {
-        console.warn("CSV Fetch failed, using embedded data:", err);
-        return embeddedCSV;
+        console.warn("CSV Fetch failed:", err);
+        return "";
+    });
+
+  const pOthers = fetch('./data_others.csv')
+    .then(response => {
+        if (!response.ok) throw new Error('Failed to load data_others.csv');
+        return response.text();
     })
-    .then(text => {
-        models = parseCSV(text);
+    .catch(err => {
+        console.warn("Metadata Fetch failed:", err);
+        return "";
+    });
+
+  dataLoadPromise = Promise.all([pEval, pOthers])
+    .then(([evalText, othersText]) => {
+        const evalModels = parseCSV(evalText);
+        const metaModels = parseMetadataCSV(othersText);
+        
+        // Merge metadata into evaluation models
+        models = evalModels.map(m => {
+            const meta = metaModels.find(mx => mx.name === m.name);
+            if (meta) {
+                m.cost_usd = meta.cost_usd;
+                m.cost_rmb = meta.cost_rmb;
+                // If provider is missing or we want to use the one from others
+                if (meta.provider) m.provider = meta.provider;
+                
+                // Extra metadata fields
+                m.open_source = meta.open_source;
+                m.tokens_per_sec = meta.tokens_per_sec;
+                m.context_window = meta.context_window;
+                m.nation = meta.nation;
+            }
+            return m;
+        });
         return models;
     });
     
   return dataLoadPromise;
+}
+
+function parseMetadataCSV(csvText) {
+  if (!csvText || !csvText.trim()) return [];
+  const text = csvText.replace(/^\uFEFF/, '').trim();
+  const lines = text.split(/\r?\n/);
+  if (lines.length < 2) return [];
+  
+  const headers = lines[0].split(',').map(h => h.trim());
+  
+  return lines.slice(1).map(line => {
+    if (!line.trim()) return null;
+    const values = line.split(',').map(v => v.trim());
+    const row = {};
+    headers.forEach((h, i) => row[h] = values[i]);
+    
+    return {
+      name: (row.name || '').trim(),
+      cost_usd: normalizeScore(row.cost_usd),
+      cost_rmb: normalizeScore(row.cost_rmb),
+      provider: (row.provider || '').trim(),
+      open_source: (row.open_source || '').trim().toLowerCase(),
+      tokens_per_sec: normalizeScore(row.tokens_per_sec),
+      context_window: normalizeScore(row.context_window),
+      nation: (row.nation || '').trim()
+    };
+  }).filter(item => item !== null && item.name);
 }
 
 // Compute per-benchmark sorted dataset

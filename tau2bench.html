@@ -7,12 +7,7 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <header>
-    <div class="header-left">
-      <a class="home-link" href="./index.html">首页</a>
-      <h1>Tau2Bench</h1>
-    </div>
-  </header>
+  <header></header>
   <main>
     <div class="intro">
       <h2>Tau2Bench Benchmark</h2>
@@ -33,13 +28,13 @@
       <div class="bars" id="bars"></div>
     </div>
   </main>
-  <footer>
-    <span>qq3dworld.com • Tau2Bench Analysis</span>
-  </footer>
+  <footer></footer>
 
   <script src="./data.js"></script>
+  <script src="./layout.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
+      injectLayout();
       renderBenchmarkBars("bars", "Tau2Bench");
     });
   </script>
