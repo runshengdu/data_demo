@@ -1,6 +1,7 @@
 // Shared benchmark data (will be loaded from CSV)
 let benchmarks = []; 
 let benchmarkGroups = {}; // Map 'Tau2Bench' -> ['Tau2Bench_airline', 'Tau2Bench_retail']
+let benchmarkDescriptions = {};
 let models = [];
 let dataLoadPromise = null;
 
@@ -119,10 +120,21 @@ async function loadData() {
         return "";
     });
 
-  dataLoadPromise = Promise.all([pEval, pOthers])
-    .then(([evalText, othersText]) => {
+  const pDesc = fetch('./eval.csv')
+    .then(response => {
+        if (!response.ok) throw new Error('Failed to load eval.csv');
+        return response.text();
+    })
+    .catch(err => {
+        console.warn("Descriptions Fetch failed:", err);
+        return "";
+    });
+
+  dataLoadPromise = Promise.all([pEval, pOthers, pDesc])
+    .then(([evalText, othersText, descText]) => {
         const evalModels = parseCSV(evalText);
         const metaModels = parseMetadataCSV(othersText);
+        benchmarkDescriptions = parseDescriptionsCSV(descText);
         
         // Merge metadata into evaluation models
         models = evalModels.map(m => {
@@ -145,6 +157,25 @@ async function loadData() {
     });
     
   return dataLoadPromise;
+}
+
+function parseDescriptionsCSV(csvText) {
+  if (!csvText || !csvText.trim()) return {};
+  const text = csvText.replace(/^\uFEFF/, '').trim();
+  const lines = text.split(/\r?\n/);
+  const map = {};
+  
+  // Start from 1 to skip header
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line.trim()) continue;
+    // Assuming simple CSV with no commas in values
+    const parts = line.split(',').map(v => v.trim());
+    if (parts.length >= 2) {
+        map[parts[0]] = parts[1];
+    }
+  }
+  return map;
 }
 
 function parseMetadataCSV(csvText) {
@@ -298,8 +329,70 @@ function getModelColor(modelName) {
   return modelColors[modelName];
 }
 
-async function updatePriceChart(metricKey) {
-  renderPriceChart("price-chart", metricKey);
+async function updatePriceChartScenario(scenario) {
+  const subSelect = document.getElementById('price-chart-submetric');
+  if (!subSelect) return;
+  
+  subSelect.innerHTML = '';
+  
+  // Default option
+  const defaultOpt = document.createElement('option');
+  defaultOpt.value = scenario;
+  defaultOpt.textContent = '全部 (All)';
+  subSelect.appendChild(defaultOpt);
+  
+  if (scenario === 'agentic') {
+    await loadData(); 
+    
+    benchmarks.forEach(b => {
+       const opt = document.createElement('option');
+       opt.value = b;
+       // Add description if available
+       const desc = benchmarkDescriptions[b] ? ` (${benchmarkDescriptions[b]})` : '';
+       opt.textContent = `${b}${desc}`;
+       subSelect.appendChild(opt);
+    });
+  } else {
+    defaultOpt.textContent = '暂无数据 (No Data)';
+  }
+  
+  renderPriceChart("price-chart", scenario);
+}
+
+async function updatePriceChartSubmetric(metric) {
+  renderPriceChart("price-chart", metric);
+}
+
+// Render metric tiles in the grid
+async function renderMetricsTiles(containerId) {
+  await loadData();
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  // Use benchmarks array to determine order if possible, or just keys of descriptions
+  // The user wants the list from index.html: MRCR, Tau2Bench, VitaBench, MultiChallenge, IFBench, LivecodeBench-pro
+  // We can iterate through the keys of benchmarkDescriptions if the CSV order is correct (which it is).
+  
+  Object.keys(benchmarkDescriptions).forEach(key => {
+      const desc = benchmarkDescriptions[key];
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      
+      let linkHtml = '';
+      // Assumption: All except LivecodeBench-pro have a detail page
+      if (key !== 'LivecodeBench-pro') {
+          linkHtml = `<a href="./${key.toLowerCase()}.html">查看详情 →</a>`;
+      }
+      
+      tile.innerHTML = `
+        <strong>${key}</strong>
+        <span>${desc}</span>
+        ${linkHtml}
+      `;
+      container.appendChild(tile);
+  });
 }
 
 // Price vs Performance Chart
@@ -308,26 +401,29 @@ async function renderPriceChart(containerId, metricKey = 'agentic') {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  // Populate dropdown if it only has the default option
-  const select = document.getElementById('price-chart-metric');
-  if (select && select.options.length === 1) {
-    benchmarks.forEach(b => {
-      const option = document.createElement('option');
-      option.value = b;
-      option.textContent = b;
-      select.appendChild(option);
-    });
+  // Initialize dropdowns if empty
+  const subSelect = document.getElementById('price-chart-submetric');
+  const scenarioSelect = document.getElementById('price-chart-scenario');
+  
+  if (subSelect && subSelect.options.length === 0 && scenarioSelect) {
+      await updatePriceChartScenario(scenarioSelect.value);
+      return; 
   }
 
   // Get dataset based on selection
   let dataset;
-  if (metricKey === 'agentic') {
-    dataset = computeAgenticDataset();
+  if (['agentic', 'finance', 'ecommerce'].includes(metricKey)) {
+    if (metricKey === 'agentic') {
+        dataset = computeAgenticDataset();
+    } else {
+        dataset = []; 
+    }
   } else {
     dataset = computeBenchmarkDataset(metricKey);
   }
   
   // Calculate Prices and prepare chart data
+
   const chartData = dataset.map(item => {
     const model = models.find(m => m.name === item.name);
     // Handle case where cost might be missing
@@ -386,7 +482,7 @@ async function renderPriceChart(containerId, metricKey = 'agentic') {
         <text x="20" y="${h/2}" transform="rotate(-90, 20, ${h/2})" text-anchor="middle" fill="#666" font-size="16">评测结果</text>
         
         <!-- X Axis Label -->
-        <text x="${w/2}" y="${h-15}" text-anchor="middle" fill="#666" font-size="16">价格 (RMB/百万token)</text>
+        <text x="${w/2}" y="${h-15}" text-anchor="middle" fill="#666" font-size="16">价格 (RMB/百万输入token)</text>
         
         <!-- Axes lines -->
         <line x1="${padding.left}" y1="${h-padding.bottom}" x2="${w-padding.right}" y2="${h-padding.bottom}" stroke="#333" stroke-width="1"/>
@@ -590,8 +686,15 @@ window.addEventListener('resize', () => {
     // Only attempt to update if the chart container exists
     const container = document.getElementById("price-chart");
     if (container) {
-       const select = document.getElementById('price-chart-metric');
-       const metric = select ? select.value : 'agentic';
+       const subSelect = document.getElementById('price-chart-submetric');
+       const scenarioSelect = document.getElementById('price-chart-scenario');
+       let metric = 'agentic';
+       
+       if (subSelect && subSelect.value) {
+           metric = subSelect.value;
+       } else if (scenarioSelect) {
+           metric = scenarioSelect.value;
+       }
        renderPriceChart("price-chart", metric);
     }
   }, 200);

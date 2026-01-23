@@ -1,0 +1,7 @@
+﻿name,intro
+MRCR,长文本理解能力
+Tau2Bench,工具调用能力
+VitaBench,工具调用和规划能力
+MultiChallenge,指令对齐能力
+IFBench,指令对齐能力
+LivecodeBench-pro,编程能力（测试中）

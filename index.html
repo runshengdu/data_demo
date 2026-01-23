@@ -23,48 +23,27 @@
         <div class="bars" id="agentic-bars"></div>
       </div>
 
+      <h3 class="section-title" style="margin-top: 2rem;">核心评估指标</h3>
+      <div id="metrics-grid" class="grid">
+        <!-- Content loaded dynamically via renderMetricsTiles() -->
+      </div>
+
       <div class="leaderboard-card" style="margin-top: 2rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
           <h3 class="section-title" style="margin-bottom: 0;">模型性价比分析 (Performance vs Price)</h3>
-          <select id="price-chart-metric" onchange="updatePriceChart(this.value)" style="padding: 0.5rem; border-radius: 4px; border: 1px solid #e2e8f0; min-width: 200px;">
-            <option value="agentic">智能体指数 (Agentic Index)</option>
-          </select>
+          <div style="display: flex; gap: 0.5rem;">
+            <select id="price-chart-scenario" onchange="updatePriceChartScenario(this.value)" style="padding: 0.5rem; border-radius: 4px; border: 1px solid #e2e8f0; min-width: 150px;">
+              <option value="agentic">智能体指数 (Agentic Index)</option>
+              <option value="finance">金融指数 (Finance Index)</option>
+              <option value="ecommerce">电商指数 (E-commerce Index)</option>
+            </select>
+            <select id="price-chart-submetric" onchange="updatePriceChartSubmetric(this.value)" style="padding: 0.5rem; border-radius: 4px; border: 1px solid #e2e8f0; min-width: 150px;">
+              <!-- Populated by JS -->
+            </select>
+          </div>
         </div>
         <div id="price-chart" style="width: 100%; height: 400px;"></div>
         <div id="price-chart-legend" style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; justify-content: center; font-size: 0.9rem; color: #666;"></div>
-      </div>
-
-      <h3 class="section-title">核心评估指标</h3>
-      <div class="grid">
-        <div class="tile">
-          <strong>MRCR</strong>
-          <span>长文本召回能力</span>
-          <a href="./mrcr.html">查看详情 →</a>
-        </div>
-        <div class="tile">
-          <strong>Tau2Bench</strong>
-          <span>工具调用能力</span>
-          <a href="./tau2bench.html">查看详情 →</a>
-        </div>
-        <div class="tile">
-          <strong>VitaBench</strong>
-          <span>工具调用和规划能力</span>
-          <a href="./vitabench.html">查看详情 →</a>
-        </div>
-        <div class="tile">
-          <strong>MultiChallenge</strong>
-          <span>指令跟随能力</span>
-          <a href="./multichallenge.html">查看详情 →</a>
-        </div>
-        <div class="tile">
-          <strong>IFBench</strong>
-          <span>指令跟随能力</span>
-          <a href="./ifbench.html">查看详情 →</a>
-        </div>
-        <div class="tile">
-          <strong>LivecodeBench-pro</strong>
-          <span>编程能力（测试中）</span>
-        </div>
       </div>
     </div>
 
@@ -245,6 +224,7 @@
       }
       renderAgenticBars("agentic-bars");
       renderPriceChart("price-chart");
+      renderMetricsTiles("metrics-grid");
       initComparison();
       updateSelectionResults();
     });
@@ -359,15 +339,15 @@
             </div>
             <div>
               <div style="color: var(--text-muted);">速度</div>
-              <div style="font-weight: 500; color: var(--text-main);">${r.details.speed} t/s</div>
+              <div style="font-weight: 500; color: var(--text-main);">${r.details.speed} token/秒</div>
             </div>
             <div>
               <div style="color: var(--text-muted);">价格</div>
-              <div style="font-weight: 500; color: var(--text-main);">${r.details.price.toFixed(4)}</div>
+              <div style="font-weight: 500; color: var(--text-main);">${r.details.price.toFixed(2)} RMB/百万输入token</div>
             </div>
             <div>
               <div style="color: var(--text-muted);">上下文</div>
-              <div style="font-weight: 500; color: var(--text-main);">${(r.details.context >= 1000) ? (r.details.context/1000).toFixed(0) + 'k' : r.details.context}</div>
+              <div style="font-weight: 500; color: var(--text-main);">${(r.details.context >= 1000) ? (r.details.context/1000).toFixed(0) + 'k' : r.details.context} tokens</div>
             </div>
           </div>
         </div>
@@ -464,10 +444,18 @@
           }));
       } else {
         items = benchmarks
-          .filter(b => b.toLowerCase().includes(q))
+          .filter(b => {
+             const desc = (benchmarkDescriptions[b] || '').toLowerCase();
+             return b.toLowerCase().includes(q) || desc.includes(q);
+          })
           .map(b => ({
             value: b,
-            display: b
+            display: `
+              <div style="display: flex; flex-direction: column; flex: 1;">
+                <span style="color: var(--text-main); font-weight: 500;">${b}</span>
+                ${benchmarkDescriptions[b] ? `<span style="font-size: 0.75em; color: var(--text-muted);">${benchmarkDescriptions[b]}</span>` : ''}
+              </div>
+            `
           }));
       }
 
