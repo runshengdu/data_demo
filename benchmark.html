@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Benchmark - qq3dworld.com</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header></header>
+  <main>
+    <div class="intro">
+      <h2 id="benchmark-title">Benchmark</h2>
+      <div class="header-buttons" id="benchmark-links"></div>
+      <p id="benchmark-intro"></p>
+    </div>
+
+    <div class="leaderboard-card">
+      <h3 class="section-title" id="benchmark-results-title">Benchmark Results</h3>
+      <div class="bars" id="bars"></div>
+    </div>
+  </main>
+  <footer></footer>
+
+  <script src="./data.js"></script>
+  <script src="./layout.js"></script>
+  <script>
+    const benchmarkPageMeta = {
+      MRCR: {
+        title: 'MRCR Benchmark',
+        resultsTitle: 'Benchmark Results',
+        intro: 'OpenAI MRCR将多个相似的“针”（比如关于不同动物的诗）插入到极长的对话历史中。模型不仅要找到信息，还必须区分信息的顺序。例如：“返回用户提到的第2个关于水豚的回复”。干扰项与目标信息来自同一分布，模型必须具备极高的注意力分配能力，在几十万甚至上百万token中保持记忆不产生偏移。',
+        links: [
+          { href: 'https://arxiv.org/pdf/2409.12640v2', label: '📄 Paper', className: 'header-btn arxiv-btn' },
+          { href: 'https://huggingface.co/datasets/openai/mrcr', label: '🤗 Hugging Face', className: 'header-btn github-btn' }
+        ]
+      },
+      Tau2Bench: {
+        title: 'Tau2Bench Benchmark',
+        resultsTitle: 'Benchmark Results',
+        intro: '这是 Sierra 推出的 Tau-Bench 的进阶版。它模拟了真实世界的企业级场景（如电信、航空、零售）。LLM需要同时操作多个 API（如查询数据库、修改订单），并在用户意图模糊或发生变化时进行沟通和纠错，测试模型在复杂策略和逻辑链条下的工具调用能力。',
+        links: [
+          { href: 'https://arxiv.org/pdf/2506.07982', label: '📄 Paper', className: 'header-btn arxiv-btn' },
+          { href: 'https://github.com/sierra-research/tau2-bench', label: '🐙 GitHub', className: 'header-btn github-btn' }
+        ]
+      },
+      VitaBench: {
+        title: 'VitaBench Benchmark',
+        resultsTitle: 'Benchmark Results-综合任务子测试集',
+        intro: '该测试集聚焦于外卖、餐饮、旅游真实生活场景，包含 66 个相互关联的工具。工具之间存在复杂的依赖关系，例如用户要求“定一个离我下午开会地点近的餐厅并预约打车”，这要求模型具备空间、时间推理以及多领域意图追踪能力。',
+        links: [
+          { href: 'https://arxiv.org/pdf/2509.26490', label: '📄 Paper', className: 'header-btn arxiv-btn' },
+          { href: 'https://vitabench.github.io/', label: '🐙 GitHub', className: 'header-btn github-btn' }
+        ]
+      },
+      MultiChallenge: {
+        title: 'MultiChallenge Benchmark',
+        resultsTitle: 'Benchmark Results',
+        intro: '由 Scale AI 开发，旨在测试模型在长对话中整合隐晦用户信息的能力。能否根据用户连续的修改意见，准确更新之前的输出。',
+        links: [
+          { href: 'https://arxiv.org/pdf/2501.17399', label: '📄 Paper', className: 'header-btn arxiv-btn' },
+          { href: 'https://github.com/ekwinox117/multi-challenge', label: '🐙 GitHub', className: 'header-btn github-btn' }
+        ]
+      },
+      IFBench: {
+        title: 'IFBench Benchmark',
+        resultsTitle: 'Benchmark Results',
+        intro: '这是针对 IFEval 容易“刷榜”而推出的更难的版本。它包含 58 个全新的、多样化的可验证约束。测试模型在处理从未见过的格式、字数控制、关键词排除等约束时的能力。不同于主观评分，IFbench侧重于可以用 Python 脚本自动检查的“硬指标”，反映了模型作为生产力工具时的可靠性。',
+        links: [
+          { href: 'https://arxiv.org/pdf/2507.02833', label: '📄 Paper', className: 'header-btn arxiv-btn' },
+          { href: 'https://github.com/allenai/IFBench', label: '🐙 GitHub', className: 'header-btn github-btn' }
+        ]
+      },
+      FACTS: {
+        title: 'FACTS Benchmark',
+        resultsTitle: 'Benchmark Results',
+        intro: 'FACTS（Factual Accuracy and Trustworthiness Score）是由 Google DeepMind 和 Google Research 推出的一套旨在系统化评估大语言模型（LLM）事实准确性。FACTS 基准套件将“事实性”拆解为四个关键维度。我们选取了子集FACTS Parametric进行测试，考察模型在不联网的情况下，仅凭参数记忆回答事实性问题的能力',
+        links: [
+          { href: 'https://arxiv.org/pdf/2512.10791', label: '📄 Paper', className: 'header-btn arxiv-btn' },
+          { href: 'https://www.kaggle.com/benchmarks/google/facts', label: '🐙 Kaggle', className: 'header-btn kaggle-btn' }
+        ]
+      }
+    };
+
+    function getQueryKey() {
+      const params = new URLSearchParams(window.location.search);
+      return (params.get('key') || '').trim();
+    }
+
+    function renderBenchmarkIntro(key) {
+      const titleEl = document.getElementById('benchmark-title');
+      const introEl = document.getElementById('benchmark-intro');
+      const linksEl = document.getElementById('benchmark-links');
+      const resultsTitleEl = document.getElementById('benchmark-results-title');
+
+      const meta = benchmarkPageMeta[key];
+
+      const fallbackTitle = key ? `${key} Benchmark` : 'Benchmark';
+      document.title = `${key || 'Benchmark'} - qq3dworld.com`;
+
+      if (titleEl) titleEl.textContent = meta?.title || fallbackTitle;
+      if (resultsTitleEl) resultsTitleEl.textContent = meta?.resultsTitle || 'Benchmark Results';
+      if (introEl) introEl.textContent = meta?.intro || (benchmarkDescriptions?.[key] ? benchmarkDescriptions[key] : '');
+
+      if (linksEl) {
+        const links = meta?.links || [];
+        linksEl.innerHTML = links.map(l => `
+          <a href="${l.href}" target="_blank" class="${l.className}">${l.label}</a>
+        `).join('');
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const key = getQueryKey();
+      await ensureDataLoaded();
+      renderBenchmarkIntro(key);
+      injectLayout();
+
+      if (!key) return;
+      await renderBenchmarkBars("bars", key);
+    });
+  </script>
+</body>
+</html>

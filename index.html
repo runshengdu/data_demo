@@ -17,7 +17,7 @@
       <div class="leaderboard-card">
         <h3 class="section-title">智能体指数表现排行榜</h3>
         <div class="section-meta">
-          <span class="meta-updated">更新时间：2026-1-21, 所有被测模型都是思考模型，其中Gemini和OpenAI的思考力度设为high</span>
+          <span class="meta-updated">更新时间：2026-1-27</span>
           <span class="meta-desc">智能体指数衡量的是LLM的通用Agent能力，包括记忆能力、工具调用、规划、编程等，该指数综合了多个评测集的平均表现，分数越高代表模型在Agent任务中的能力越强。该指数的相关测试尚未完成，目前排名不代表最终结果。</span>
         </div>
         <div class="bars" id="agentic-bars"></div>
@@ -182,6 +182,11 @@
       </div>
     </div>
 
+    <!-- Methods Tab -->
+    <div id="methods" class="tab-content">
+      <div id="methods-content"></div>
+    </div>
+
     <!-- Finance Index Tab -->
     <div id="finance" class="tab-content">
       <div class="coming-soon-container">
@@ -204,15 +209,83 @@
   <script src="./layout.js"></script>
   <script>
     // Tab Switching
-    function showTab(tabId) {
+    let methodsTabHtml = null;
+    let methodsTabLoadingPromise = null;
+
+    async function loadMethodsTab(forceReload = false) {
+      const container = document.getElementById('methods-content');
+      if (!container) return;
+
+      if (!forceReload && methodsTabHtml) {
+        container.innerHTML = methodsTabHtml;
+        return;
+      }
+
+      if (methodsTabLoadingPromise) {
+        await methodsTabLoadingPromise;
+        return;
+      }
+
+      methodsTabLoadingPromise = (async () => {
+        container.innerHTML = `
+          <div class="leaderboard-card">
+            <h3 class="section-title">测试方法说明</h3>
+            <div class="section-meta"><span class="meta-desc">正在加载…</span></div>
+          </div>
+        `;
+
+        const resp = await fetch('./methods.html', { cache: 'no-store' });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const html = await resp.text();
+
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const card = doc.querySelector('main .leaderboard-card') || doc.querySelector('.leaderboard-card');
+
+        methodsTabHtml = card ? card.outerHTML : `
+          <div class="leaderboard-card">
+            <h3 class="section-title">测试方法说明</h3>
+            <div class="section-meta">
+              <span class="meta-desc">内容解析失败，请打开 <a href="./methods.html">methods.html</a> 查看。</span>
+            </div>
+          </div>
+        `;
+
+        container.innerHTML = methodsTabHtml;
+      })()
+        .catch((err) => {
+          const msg = (err && err.message) ? err.message : String(err);
+          container.innerHTML = `
+            <div class="leaderboard-card">
+              <h3 class="section-title">测试方法说明</h3>
+              <div class="section-meta">
+                <span class="meta-desc">加载失败：${msg}。请打开 <a href="./methods.html">methods.html</a> 查看。</span>
+              </div>
+            </div>
+          `;
+        })
+        .finally(() => {
+          methodsTabLoadingPromise = null;
+        });
+
+      await methodsTabLoadingPromise;
+    }
+
+    async function showTab(tabId) {
       // Update buttons
       document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.getAttribute('onclick').includes(tabId));
+        const onclickAttr = btn.getAttribute('onclick');
+        if (onclickAttr) {
+          btn.classList.toggle('active', onclickAttr.includes(tabId));
+        }
       });
       // Update content
       document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.toggle('active', content.id === tabId);
       });
+
+      if (tabId === 'methods') {
+        await loadMethodsTab();
+      }
     }
 
     document.addEventListener('DOMContentLoaded', async () => {

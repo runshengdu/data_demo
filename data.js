@@ -383,7 +383,7 @@ async function renderMetricsTiles(containerId) {
       let linkHtml = '';
       // Assumption: All except LivecodeBench-pro have a detail page
       if (key !== 'LivecodeBench-pro') {
-          linkHtml = `<a href="./${key.toLowerCase()}.html">查看详情 →</a>`;
+          linkHtml = `<a href="./benchmark.html?key=${encodeURIComponent(key)}">查看详情 →</a>`;
       }
       
       tile.innerHTML = `

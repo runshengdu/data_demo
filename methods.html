@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>测试方法 - LLM Benchmarks</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header></header>
+  <main>
+    <div class="leaderboard-card">
+      <h3 class="section-title">测试方法说明</h3>
+      <div class="section-meta">
+        <span class="meta-desc">本页面展示了每个测试集的具体测试方法。</span>
+      </div>
+      
+      <table class="methods-table">
+        <thead>
+          <tr>
+            <th>测试集</th>
+            <th>测试子集</th>
+            <th>题目数量</th>
+            <th>测试方法</th>
+            <th>重复测试</th>
+          </tr>
+        </thead>
+        <tbody id="methods-body">
+          <tr>
+            <td>MRCR</td>
+            <td>2 needles</td>
+            <td>约550</td>
+            <td>
+              temperature=1<br>
+              海外模型通过Openroute调用，中国模型通过官方接口调用<br>
+              所有模型都是思考模型，Gemini和OpenAI的思考强度设为high<br>
+              基于OpenAI的测试代码进行测试
+            </td>
+            <td>1</td>
+          </tr>
+          <tr>
+            <td>Tau2-Bench</td>
+            <td>retail, airline</td>
+            <td>165</td>
+            <td>
+              temperature=1<br>
+              海外模型通过Openroute调用，中国模型通过官方接口调用<br>
+              所有模型都是思考模型，Gemini和OpenAI的思考强度设为high<br>
+              基于Tau2-Bench的测试代码进行测试，所有被测模型的思维链都放入对话历史
+            </td>
+            <td>2</td>
+          </tr>
+           <tr>
+            <td>VitaBench</td>
+            <td>cross-scenario</td>
+            <td>100</td>
+            <td>
+              temperature=1<br>
+              海外模型通过Openroute调用，中国模型通过官方接口调用<br>
+              所有模型都是思考模型，Gemini和OpenAI的思考强度设为high<br>
+              在VitaBench测试代码的基础上把LLM评估器从1个改为3个，采用多数投票法选出最终结果，所有被测模型的思维链都放入对话历史
+            </td>
+            <td>2</td>
+          </tr>
+          <tr>
+            <td>MultiChallenge</td>
+            <td>MultiChallenge</td>
+            <td>273</td>
+            <td>
+              temperature=1<br>
+              海外模型通过Openroute调用，中国模型通过官方接口调用<br>
+              所有模型都是思考模型，Gemini和OpenAI的思考强度设为high<br>
+              在MultiChallenge测试代码的基础上把LLM评估器从1个改为3个，采用多数投票法选出最终结果
+            </td>
+            <td>2</td>
+          </tr>
+          <tr>
+            <td>IFBench</td>
+            <td>multi-turn</td>
+            <td>1387</td>
+            <td>
+              temperature=1<br>
+              海外模型通过Openroute调用，中国模型通过官方接口调用<br>
+              所有模型都是思考模型，Gemini和OpenAI的思考强度设为high<br>
+              基于IFBench的测试代码进行测试
+            </td>
+            <td>2</td>
+          </tr>
+          <tr>
+            <td>FACTS</td>
+            <td>FACTS Parametric</td>
+            <td>1052</td>
+            <td>
+              temperature=1<br>
+              海外模型通过Openroute调用，中国模型通过官方接口调用<br>
+              所有模型都是思考模型，Gemini和OpenAI的思考强度设为high<br>
+              基于FACTS的测试代码进行测试
+            </td>
+            <td>2</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+  <footer></footer>
+  <script src="./layout.js"></script>
+  <script>
+    // Initialize layout
+    document.addEventListener('DOMContentLoaded', () => {
+      injectLayout('subpage');
+    });
+  </script>
+</body>
+</html>
