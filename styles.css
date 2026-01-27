@@ -575,6 +575,68 @@ footer {
   margin-bottom: 4rem;
 }
 
+.header-buttons {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.header-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-main);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.header-btn:hover {
+  background: var(--bg-hover);
+  border-color: rgba(59, 130, 246, 0.35);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.header-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--primary-light), var(--shadow-md);
+  border-color: var(--primary);
+}
+
+.header-btn:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+.header-btn.arxiv-btn {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.25);
+  color: var(--primary-dark);
+}
+
+.header-btn.github-btn {
+  background: rgba(15, 23, 42, 0.06);
+  border-color: rgba(15, 23, 42, 0.2);
+  color: var(--text-main);
+}
+
+.header-btn.kaggle-btn {
+  background: rgba(20, 184, 166, 0.08);
+  border-color: rgba(20, 184, 166, 0.25);
+  color: #0f766e;
+}
+
 .intro h2 {
   font-size: 1.75rem;
   font-weight: 700;
@@ -587,5 +649,5 @@ footer {
   color: var(--text-secondary);
   font-size: 1.1rem;
   line-height: 1.7;
-  max-width: 800px;
+  max-width: 1200px;
 }
