@@ -1,4 +1,26 @@
 
+function applySentenceBullets(root) {
+  if (!root) return;
+  const candidates = [
+    ...root.querySelectorAll('.section-meta .meta-desc'),
+    ...root.querySelectorAll('.methods-table td')
+  ];
+
+  candidates.forEach((el) => {
+    if (el.querySelector && el.querySelector('ul.sentence-bullets')) return;
+    const html = el && typeof el.innerHTML === 'string' ? el.innerHTML : '';
+    if (!/<br\s*\/?>/i.test(html)) return;
+
+    const items = html
+      .split(/<br\s*\/?>/i)
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    if (items.length <= 1) return;
+    el.innerHTML = `<ul class="sentence-bullets">${items.map(i => `<li>${i}</li>`).join('')}</ul>`;
+  });
+}
+
 function injectLayout(pageType = 'subpage') {
   // Inject Header
   const header = document.querySelector('header');
@@ -47,3 +69,5 @@ function injectLayout(pageType = 'subpage') {
     `;
   }
 }
+
+window.applySentenceBullets = applySentenceBullets;

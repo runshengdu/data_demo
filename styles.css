@@ -535,10 +535,20 @@ input[type=range]::-webkit-slider-runnable-track {
 }
 
 /* Methods Table */
+.methods-table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  background: var(--bg-card);
+}
+
 .methods-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
+  min-width: 760px;
 }
 .methods-table th, .methods-table td {
   border: 1px solid var(--border);
@@ -549,9 +559,21 @@ input[type=range]::-webkit-slider-runnable-track {
   background-color: var(--bg-hover);
   font-weight: 600;
   color: var(--text-main);
+  white-space: nowrap;
 }
 .methods-table tr:hover {
   background-color: var(--bg-hover);
+}
+
+.sentence-bullets {
+  margin: 0;
+  padding-left: 1.1rem;
+  list-style: disc;
+  list-style-position: outside;
+}
+
+.sentence-bullets li {
+  margin: 0.25rem 0;
 }
 
 /* Footer */
